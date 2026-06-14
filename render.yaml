@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: kinevox-academy
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_EXPIRY_HOURS
+        value: "8"
+      - key: DEBUG
+        value: "false"
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: DATABASE_URL
+        sync: false        # set manually — Neon/Supabase Postgres connection string
+      - key: BREVO_API_KEY
+        sync: false        # set manually in Render dashboard
+      - key: NOTIFY_FROM_EMAIL
+        sync: false        # set manually in Render dashboard (must be verified in Brevo)
+      - key: NOTIFY_FROM_NAME
+        value: Kinevox Academy
+      - key: NOTIFY_EMAIL_TO
+        sync: false        # set manually in Render dashboard

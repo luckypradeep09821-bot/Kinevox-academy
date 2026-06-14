@@ -1,0 +1,2685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Kinevox Academy Institute — Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07080f;
+  --bg2:#0e0f1a;
+  --bg3:#161728;
+  --bg4:#1e2035;
+  --border:#2a2c45;
+  --border2:#3a3d5c;
+  --accent:#6c63ff;
+  --accent2:#a78bfa;
+  --accent3:#38bdf8;
+  --gold:#f59e0b;
+  --green:#10b981;
+  --red:#ef4444;
+  --orange:#f97316;
+  --text:#e8eaf6;
+  --text2:#9fa3c7;
+  --text3:#5c6080;
+  --font:'DM Sans',sans-serif;
+  --head:'Syne',sans-serif;
+  --r:10px;
+  --r2:16px;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;display:block}
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+/* SIDEBAR */
+#sidebar{width:240px;min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;transition:width .3s;overflow:hidden;position:fixed;left:0;top:0;bottom:0;z-index:100}
+#sidebar.collapsed{width:64px}
+.sid-logo{padding:24px 16px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
+.sid-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.sid-logo-text{font-family:var(--head);font-size:18px;font-weight:800;color:var(--text);white-space:nowrap;line-height:1.1}
+.sid-logo-text small{font-size:11px;color:var(--text2);font-weight:400;display:block}
+.collapse-btn{position:absolute;right:-14px;top:30px;width:28px;height:28px;background:var(--bg3);border:1px solid var(--border);border-radius:50%;cursor:pointer;color:var(--text2);font-size:12px;display:flex;align-items:center;justify-content:center;z-index:101;transition:.2s}
+.collapse-btn:hover{color:var(--accent)}
+nav{flex:1;padding:12px 8px;overflow-y:auto}
+.nav-item{width:100%;display:flex;align-items:center;gap:12px;padding:10px 12px;border:none;background:none;color:var(--text2);cursor:pointer;border-radius:var(--r);font-family:var(--font);font-size:14px;font-weight:500;transition:.15s;text-align:left;margin-bottom:2px;white-space:nowrap}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:linear-gradient(135deg,rgba(108,99,255,.2),rgba(56,189,248,.1));color:var(--accent2);border:1px solid rgba(108,99,255,.3)}
+.nav-icon{font-size:18px;flex-shrink:0;width:24px;text-align:center}
+.nav-section{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--text3);padding:16px 12px 6px;white-space:nowrap;overflow:hidden}
+.sid-footer{padding:16px;border-top:1px solid var(--border)}
+.campus-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:10px}
+.campus-badge{width:32px;height:32px;background:linear-gradient(135deg,var(--gold),var(--orange));border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--head);font-size:11px;font-weight:800;color:#000;flex-shrink:0}
+.campus-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap}
+.campus-sub{font-size:11px;color:var(--text3)}
+
+/* MAIN */
+#main{flex:1;margin-left:240px;min-height:100vh;transition:margin-left .3s}
+#main.expanded{margin-left:64px}
+
+/* PAGE HEADER */
+.page-header{padding:28px 32px 0;border-bottom:1px solid var(--border);background:var(--bg)}
+.page-title{font-family:var(--head);font-size:26px;font-weight:800;color:var(--text)}
+.page-sub{font-size:14px;color:var(--text2);margin-top:4px}
+.page-tabs{display:flex;gap:4px;margin-top:20px}
+.tab-btn{padding:10px 18px;border:none;background:none;color:var(--text3);cursor:pointer;font-family:var(--font);font-size:13px;font-weight:500;border-bottom:2px solid transparent;transition:.15s}
+.tab-btn:hover{color:var(--text2)}
+.tab-btn.active{color:var(--accent2);border-bottom-color:var(--accent2)}
+
+/* PAGE CONTENT */
+.page-body{padding:28px 32px}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:20px}
+.card-sm{padding:16px}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:20px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;right:0;width:60px;height:60px;border-radius:0 var(--r2) 0 60px;opacity:.12}
+.stat-card.purple::before{background:var(--accent)}
+.stat-card.blue::before{background:var(--accent3)}
+.stat-card.green::before{background:var(--green)}
+.stat-card.gold::before{background:var(--gold)}
+.stat-val{font-family:var(--head);font-size:32px;font-weight:800;color:var(--text);line-height:1}
+.stat-label{font-size:12px;color:var(--text2);margin-top:6px;text-transform:uppercase;letter-spacing:.5px}
+.stat-icon{font-size:22px;margin-bottom:10px}
+
+/* TABLES */
+.table-wrap{overflow-x:auto;border-radius:var(--r2);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse}
+th{background:var(--bg3);padding:12px 16px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);font-weight:600;white-space:nowrap}
+td{padding:13px 16px;border-top:1px solid var(--border);font-size:13px;color:var(--text2);vertical-align:middle}
+tr:hover td{background:rgba(255,255,255,.02)}
+.td-name{color:var(--text);font-weight:500}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.3px}
+.badge-green{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.25)}
+.badge-red{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+.badge-blue{background:rgba(56,189,248,.15);color:var(--accent3);border:1px solid rgba(56,189,248,.25)}
+.badge-gold{background:rgba(245,158,11,.15);color:var(--gold);border:1px solid rgba(245,158,11,.25)}
+.badge-purple{background:rgba(108,99,255,.15);color:var(--accent2);border:1px solid rgba(108,99,255,.25)}
+
+/* BUTTONS */
+.btn{padding:9px 18px;border-radius:var(--r);border:none;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:600;transition:.15s;display:inline-flex;align-items:center;gap:7px}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#8b5cf6);color:#fff}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-outline{background:none;border:1px solid var(--border2);color:var(--text2)}
+.btn-outline:hover{border-color:var(--accent2);color:var(--accent2)}
+.btn-danger{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:var(--red)}
+.btn-success{background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:var(--green)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-icon{width:32px;height:32px;padding:0;justify-content:center;font-size:15px}
+
+/* FORMS */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.form-full{grid-column:1/-1}
+.form-group{display:flex;flex-direction:column;gap:6px}
+label{font-size:12px;color:var(--text2);font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+input,select,textarea{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;transition:.15s;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);background:var(--bg4)}
+select option{background:var(--bg3)}
+textarea{resize:vertical;min-height:80px}
+.file-input-wrap{background:var(--bg3);border:1px dashed var(--border2);border-radius:var(--r);padding:20px;text-align:center;cursor:pointer;transition:.15s;position:relative}
+.file-input-wrap:hover{border-color:var(--accent2);background:var(--bg4)}
+.file-input-wrap input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.file-label{font-size:13px;color:var(--text2)}
+.file-icon{font-size:24px;margin-bottom:6px}
+.file-input-wrap.uploading{border-color:var(--accent2);background:var(--bg4);opacity:.7;pointer-events:none}
+.file-input-wrap.uploaded{border-color:var(--accent2);border-style:solid;background:rgba(167,139,250,.08)}
+.file-input-wrap.uploaded .file-label{color:var(--accent2);font-weight:600}
+.file-input-wrap.done{border-color:var(--green);border-style:solid;background:rgba(16,185,129,.08)}
+.file-input-wrap.done .file-label{color:var(--green);font-weight:600}
+.file-input-wrap.upload-error{border-color:var(--red);border-style:solid;background:rgba(239,68,68,.06)}
+.file-input-wrap.upload-error .file-label{color:var(--red)}
+.doc-upload-spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--accent2);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:20px;width:100%;max-width:780px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,.5)}
+.modal-lg{max-width:960px}
+.modal-header{padding:24px 28px 0;display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--bg2);z-index:1;border-bottom:1px solid var(--border);padding-bottom:16px}
+.modal-title{font-family:var(--head);font-size:20px;font-weight:800}
+.modal-close{background:var(--bg3);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;cursor:pointer;color:var(--text2);font-size:18px;display:flex;align-items:center;justify-content:center}
+.modal-body{padding:24px 28px}
+.modal-footer{padding:0 28px 24px;display:flex;gap:10px;justify-content:flex-end}
+
+/* AVATAR */
+.avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent3));display:flex;align-items:center;justify-content:center;font-family:var(--head);font-weight:700;font-size:15px;color:#fff;flex-shrink:0}
+.avatar-lg{width:72px;height:72px;font-size:26px;border-radius:16px}
+.avatar-img{object-fit:cover;width:100%;height:100%}
+
+/* PROGRESS */
+.progress-bar{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--accent3));transition:width .3s}
+
+/* EMPLOYEE CARD */
+.emp-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:20px;display:flex;flex-direction:column;gap:14px;transition:.2s;cursor:pointer}
+.emp-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.emp-card-header{display:flex;gap:14px;align-items:flex-start}
+.emp-info{flex:1}
+.emp-name{font-family:var(--head);font-size:16px;font-weight:700;color:var(--text)}
+.emp-role{font-size:12px;color:var(--accent2);margin-top:2px}
+.emp-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.emp-meta-item{font-size:12px;color:var(--text3);display:flex;flex-direction:column;gap:2px}
+.emp-meta-item strong{color:var(--text2);font-size:13px}
+.emp-actions{display:flex;gap:8px}
+
+/* CERT */
+.cert-preview{background:linear-gradient(135deg,#0d0d1f,#141428);border:2px solid var(--gold);border-radius:16px;padding:40px;text-align:center;position:relative;overflow:hidden}
+.cert-preview::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,.1),transparent)}
+.cert-preview::after{content:'';position:absolute;bottom:-50px;left:-50px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(108,99,255,.1),transparent)}
+.cert-logo{font-size:36px;margin-bottom:8px}
+.cert-inst{font-family:var(--head);font-size:14px;font-weight:700;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:20px}
+.cert-title{font-size:13px;color:var(--text2);margin-bottom:8px}
+.cert-of{font-family:var(--head);font-size:28px;font-weight:800;color:var(--text);margin-bottom:4px}
+.cert-sub{font-size:12px;color:var(--text3);margin-bottom:20px}
+.cert-name{font-family:var(--head);font-size:36px;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.cert-course-label{font-size:13px;color:var(--text2);margin-bottom:4px}
+.cert-course-name{font-family:var(--head);font-size:20px;font-weight:700;color:var(--accent2);margin-bottom:24px}
+.cert-line{height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:20px 0}
+.cert-footer{display:flex;justify-content:space-between;align-items:flex-end;margin-top:20px}
+.cert-sig-area{text-align:left}
+.cert-sig-line{width:100px;height:1px;background:var(--gold);margin-bottom:4px}
+.cert-sig-label{font-size:11px;color:var(--text3)}
+
+/* ID CARD */
+.id-card{width:320px;background:linear-gradient(135deg,var(--bg3),var(--bg2));border:1px solid var(--border);border-radius:16px;overflow:hidden;margin:0 auto}
+.id-card-top{background:linear-gradient(135deg,var(--accent),#4c47d9);padding:20px;text-align:center;position:relative}
+.id-card-top::after{content:'';position:absolute;bottom:-15px;left:0;right:0;height:30px;background:inherit;border-radius:0 0 50% 50%}
+.id-inst{font-family:var(--head);font-size:14px;font-weight:800;color:#fff;letter-spacing:1px}
+.id-sub{font-size:11px;color:rgba(255,255,255,.7)}
+.id-body{padding:30px 20px 20px;text-align:center}
+.id-avatar{width:80px;height:80px;border-radius:50%;background:var(--bg4);border:3px solid var(--accent2);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-family:var(--head);font-size:28px;font-weight:800;overflow:hidden}
+.id-name{font-family:var(--head);font-size:18px;font-weight:800;color:var(--text)}
+.id-role{font-size:12px;color:var(--accent2);margin-bottom:16px}
+.id-fields{background:var(--bg4);border-radius:10px;padding:12px;text-align:left;margin-bottom:14px}
+.id-field{display:flex;justify-content:space-between;padding:4px 0;font-size:12px}
+.id-field-key{color:var(--text3)}
+.id-field-val{color:var(--text2);font-weight:500}
+.id-qr{display:flex;justify-content:center;margin:10px 0}
+
+/* SALARY SLIP */
+.slip{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
+.slip-header{background:linear-gradient(135deg,var(--accent),#4c47d9);padding:24px;display:flex;justify-content:space-between;align-items:center}
+.slip-inst{font-family:var(--head);font-size:20px;font-weight:800;color:#fff}
+.slip-address{font-size:12px;color:rgba(255,255,255,.7);margin-top:4px}
+.slip-title{font-family:var(--head);font-size:14px;font-weight:700;color:rgba(255,255,255,.9);background:rgba(255,255,255,.1);padding:8px 16px;border-radius:20px;text-align:right}
+.slip-month{font-size:12px;color:rgba(255,255,255,.7);margin-top:2px;text-align:right}
+.slip-emp-info{padding:20px 24px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.slip-info-item{font-size:13px}
+.slip-info-label{color:var(--text3);font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+.slip-info-val{color:var(--text2);margin-top:2px;font-weight:500}
+.slip-body{padding:20px 24px}
+.slip-table{width:100%;border-collapse:collapse;margin-bottom:16px}
+.slip-table th{background:var(--bg3);padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3)}
+.slip-table td{padding:10px 14px;border-top:1px solid var(--border);font-size:13px;color:var(--text2)}
+.slip-table td:last-child{text-align:right}
+.slip-total{background:var(--bg3);border-radius:var(--r);padding:14px 20px;display:flex;justify-content:space-between;align-items:center}
+.slip-net-label{font-size:14px;color:var(--text2);font-weight:600}
+.slip-net-amt{font-family:var(--head);font-size:24px;font-weight:800;color:var(--green)}
+
+/* SCHEDULE */
+.schedule-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:12px}
+.sched-day{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px;text-align:center}
+.sched-day-name{font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:6px}
+.sched-day-status{font-size:11px;font-weight:600}
+.sched-day.work .sched-day-status{color:var(--green)}
+.sched-day.off .sched-day-status{color:var(--text3)}
+
+/* COURSE CARD */
+.course-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:20px;transition:.2s}
+.course-card:hover{border-color:var(--border2)}
+.course-icon{font-size:32px;margin-bottom:12px}
+.course-name{font-family:var(--head);font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px}
+.course-cat{font-size:12px;color:var(--accent2);margin-bottom:12px}
+.course-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.course-stat{background:var(--bg3);border-radius:8px;padding:8px;text-align:center}
+.course-stat-val{font-size:16px;font-weight:700;color:var(--text)}
+.course-stat-key{font-size:10px;color:var(--text3);margin-top:2px}
+
+/* TOOLTIP / INFO */
+.section-title{font-family:var(--head);font-size:16px;font-weight:700;color:var(--text);margin-bottom:16px}
+
+/* ACTION BAR */
+.action-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:12px;flex-wrap:wrap}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:8px 14px;flex:1;max-width:320px}
+.search-box input{background:none;border:none;outline:none;color:var(--text);font-size:14px;width:100%}
+.search-box span{color:var(--text3);font-size:16px}
+
+/* CHARTS */
+.mini-chart{display:flex;align-items:flex-end;gap:4px;height:60px}
+.chart-bar{flex:1;border-radius:3px 3px 0 0;background:linear-gradient(0deg,var(--accent),var(--accent2));min-width:8px;transition:.3s}
+
+/* TABS PANEL */
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* NOTIFICATION */
+.toast{position:fixed;top:20px;right:20px;background:var(--bg2);border:1px solid var(--green);border-radius:var(--r);padding:14px 20px;color:var(--green);font-weight:600;font-size:14px;z-index:9999;transform:translateX(120%);transition:.3s;display:flex;align-items:center;gap:8px}
+.toast.show{transform:translateX(0)}
+.toast.error{border-color:var(--red);color:var(--red)}
+
+/* PROFILE VIEW */
+.profile-view{display:grid;grid-template-columns:280px 1fr;gap:20px}
+.profile-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:24px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px}
+.profile-name{font-family:var(--head);font-size:20px;font-weight:800;color:var(--text)}
+.profile-role{font-size:13px;color:var(--accent2)}
+.profile-docs{margin-top:8px;width:100%}
+.doc-item{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg3);border-radius:8px;margin-bottom:6px;font-size:12px}
+.doc-name{color:var(--text2)}
+.doc-status-ok{color:var(--green);font-size:11px}
+.doc-status-no{color:var(--text3);font-size:11px}
+
+/* ATTENDANCE VISUAL */
+.att-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.att-day{width:100%;aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600}
+.att-present{background:rgba(16,185,129,.3);color:var(--green)}
+.att-absent{background:rgba(239,68,68,.2);color:var(--red)}
+.att-late{background:rgba(245,158,11,.2);color:var(--gold)}
+.att-off{background:var(--bg3);color:var(--text3)}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  #sidebar{width:64px}
+  .sid-logo-text,.nav-label,.nav-section,.sid-footer{display:none}
+  #main{margin-left:64px}
+  .form-grid,.form-grid-3{grid-template-columns:1fr}
+  .profile-view{grid-template-columns:1fr}
+  .page-body{padding:16px}
+  .stat-grid{grid-template-columns:1fr 1fr}
+}
+
+/* PRINT */
+@media print{
+  #sidebar,#main .page-header,.action-bar,.btn,.modal-overlay{display:none!important}
+  body{background:#fff;color:#000}
+  .cert-preview{border:3px solid #c9a227;page-break-inside:avoid}
+  .id-card{border:1px solid #333;page-break-inside:avoid}
+  .slip{border:1px solid #333}
+}
+
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;background:var(--bg3);color:var(--text3);border:1px solid var(--border);margin:2px}
+.divider{height:1px;background:var(--border);margin:20px 0}
+.text-muted{color:var(--text2);font-size:13px}
+.text-sm{font-size:12px;color:var(--text3)}
+.flex{display:flex}
+.items-center{align-items:center}
+.gap-8{gap:8px}
+.gap-12{gap:12px}
+.gap-16{gap:16px}
+.justify-between{justify-content:space-between}
+.mt-4{margin-top:4px}
+.mt-8{margin-top:8px}
+.mt-16{margin-top:16px}
+.mb-16{margin-bottom:16px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px}
+
+/* ========== LOGIN PAGE ========== */
+#login-screen{
+  position:fixed;inset:0;z-index:9999;
+  background:#07080f;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font);
+}
+#login-screen.hide{
+  opacity:0;pointer-events:none;
+  transition:opacity .4s ease;
+}
+.login-bg{
+  position:absolute;inset:0;overflow:hidden;
+}
+.login-bg-blob1{
+  position:absolute;top:-120px;right:-100px;
+  width:500px;height:500px;
+  background:radial-gradient(circle,rgba(108,99,255,0.18) 0%,transparent 65%);
+  border-radius:50%;
+}
+.login-bg-blob2{
+  position:absolute;bottom:-100px;left:-80px;
+  width:400px;height:400px;
+  background:radial-gradient(circle,rgba(249,115,22,0.12) 0%,transparent 65%);
+  border-radius:50%;
+}
+.login-bg-blob3{
+  position:absolute;top:40%;left:55%;
+  width:300px;height:300px;
+  background:radial-gradient(circle,rgba(56,189,248,0.07) 0%,transparent 65%);
+  border-radius:50%;
+}
+.login-card{
+  position:relative;z-index:1;
+  width:420px;
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:44px 40px 36px;
+  box-shadow:0 32px 80px rgba(0,0,0,0.5);
+  animation:loginSlideUp .45s cubic-bezier(.22,.68,0,1.2) both;
+}
+@keyframes loginSlideUp{
+  from{opacity:0;transform:translateY(28px) scale(.97)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+.login-logo{
+  display:flex;align-items:center;gap:12px;margin-bottom:32px;
+}
+.login-logo-icon{
+  width:44px;height:44px;
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;
+  box-shadow:0 6px 20px rgba(108,99,255,0.35);
+}
+.login-logo-text{
+  font-family:var(--head);font-size:20px;font-weight:800;color:var(--text);line-height:1.1;
+}
+.login-logo-text small{font-size:12px;color:var(--text2);font-weight:400;display:block;margin-top:1px;}
+.login-heading{
+  font-family:var(--head);font-size:26px;font-weight:800;color:var(--text);margin-bottom:6px;
+}
+.login-sub{
+  font-size:13px;color:var(--text2);margin-bottom:32px;
+}
+.login-field{
+  display:flex;flex-direction:column;gap:7px;margin-bottom:18px;
+}
+.login-field label{
+  font-size:12px;font-weight:600;color:var(--text2);letter-spacing:.5px;text-transform:uppercase;
+}
+.login-input-wrap{
+  position:relative;
+}
+.login-input-wrap input{
+  width:100%;background:var(--bg3);border:1.5px solid var(--border);
+  border-radius:10px;padding:12px 44px 12px 16px;
+  color:var(--text);font-family:var(--font);font-size:14px;
+  outline:none;transition:.2s;
+}
+.login-input-wrap input:focus{
+  border-color:var(--accent);background:var(--bg4);
+  box-shadow:0 0 0 3px rgba(108,99,255,0.15);
+}
+.login-input-icon{
+  position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  font-size:16px;color:var(--text3);pointer-events:none;
+}
+.toggle-pw{
+  position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;
+  font-size:15px;color:var(--text3);padding:0;line-height:1;
+  transition:.15s;
+}
+.toggle-pw:hover{color:var(--text2);}
+.login-error{
+  background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);
+  color:#f87171;border-radius:8px;padding:10px 14px;
+  font-size:13px;margin-bottom:18px;display:none;
+  animation:shake .3s ease;
+}
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-6px)}
+  75%{transform:translateX(6px)}
+}
+.login-btn{
+  width:100%;padding:13px;border:none;border-radius:10px;
+  background:linear-gradient(135deg,var(--accent),#8b5cf6);
+  color:#fff;font-family:var(--head);font-size:15px;font-weight:700;
+  cursor:pointer;transition:.2s;letter-spacing:.3px;
+  box-shadow:0 6px 20px rgba(108,99,255,0.35);
+  margin-top:4px;
+}
+.login-btn:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 8px 24px rgba(108,99,255,0.45);}
+.login-btn:active{transform:translateY(0);}
+.login-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.login-divider{
+  display:flex;align-items:center;gap:12px;margin:22px 0 18px;
+}
+.login-divider span{flex:1;height:1px;background:var(--border);}
+.login-divider p{font-size:11px;color:var(--text3);white-space:nowrap;}
+.login-hint{
+  background:var(--bg3);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;display:flex;align-items:flex-start;gap:10px;
+}
+.login-hint-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.login-hint-text{font-size:12px;color:var(--text3);line-height:1.6;}
+.login-hint-text strong{color:var(--text2);}
+</style>
+</head>
+<body>
+
+<!-- ========== LOGIN SCREEN ========== -->
+<div id="login-screen">
+  <div class="login-bg">
+    <div class="login-bg-blob1"></div>
+    <div class="login-bg-blob2"></div>
+    <div class="login-bg-blob3"></div>
+  </div>
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon" style="background:transparent;padding:30px;"><img src="https://i.ibb.co/3YrbmDRB/img-removebg-preview.png" style="width:100px;height:100px;object-fit:contain;border-radius:8px;" alt="logo"/></div>
+      <div class="login-logo-text">Kinevox Academy<small>Institute — Chennai</small></div>
+    </div>
+    <div class="login-heading">Welcome back</div>
+    <div class="login-sub">Sign in to access the management portal</div>
+
+    <div id="login-error" class="login-error">⚠ Incorrect username or password. Try again.</div>
+
+    <div class="login-field">
+      <label>Username</label>
+      <div class="login-input-wrap">
+        <input type="text" id="login-user" placeholder="Enter your username" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()"/>
+        <span class="login-input-icon">👤</span>
+      </div>
+    </div>
+
+    <div class="login-field">
+      <label>Password</label>
+      <div class="login-input-wrap">
+        <input type="password" id="login-pass" placeholder="Enter your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
+        <button class="toggle-pw" onclick="togglePw()" id="pw-toggle-btn" title="Show/hide password">👁</button>
+      </div>
+    </div>
+
+    <button class="login-btn" onclick="doLogin()" id="login-btn">Sign In →</button>
+
+    <div class="login-divider"><span></span><p>Credentials</p><span></span></div>
+    <div class="login-hint">
+      <span class="login-hint-icon">🔑</span>
+      <div class="login-hint-text">
+        Username: <strong>admin</strong> &nbsp;·&nbsp; Password: <strong>Kinevox123</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MAIN APP (hidden until login) ========== -->
+<div id="app-root" style="display:none;width:100%;min-height:100vh;flex-direction:row;">
+
+<div id="toast" class="toast">✓ Saved successfully</div>
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <div class="sid-logo">
+    <div class="sid-logo-icon" style="background:transparent;padding:28px;"><img src="https://i.ibb.co/3YrbmDRB/img-removebg-preview.png" style="width:96px;height:96px;object-fit:contain;border-radius:10px;" alt="logo"/></div>
+    <div class="sid-logo-text">Kinevox <br>Academy<small>Institute</small></div>
+  </div>
+  <button class="collapse-btn" onclick="toggleSidebar()" id="collapseBtn">◀</button>
+  <nav>
+    <div class="nav-section">Main</div>
+    <button class="nav-item active" onclick="showPage('dashboard',this)"><span class="nav-icon">⊞</span><span class="nav-label">Dashboard</span></button>
+    <div class="nav-section">Management</div>
+    <button class="nav-item" onclick="showPage('employees',this)"><span class="nav-icon">👥</span><span class="nav-label">Employees</span></button>
+    <button class="nav-item" onclick="showPage('students',this)"><span class="nav-icon">🎓</span><span class="nav-label">Students</span></button>
+    <button class="nav-item" onclick="showPage('courses',this)"><span class="nav-icon">📚</span><span class="nav-label">Courses</span></button>
+    <div class="nav-section">Finance</div>
+    <button class="nav-item" onclick="showPage('payroll',this)"><span class="nav-icon">💳</span><span class="nav-label">Payroll & IDs</span></button>
+    <button class="nav-item" onclick="showPage('reports',this)"><span class="nav-icon">📊</span><span class="nav-label">Reports</span></button>
+  </nav>
+  <div class="sid-footer">
+    <div class="campus-card">
+      <div class="campus-badge">TSI</div>
+      <div><div class="campus-name">Chennai</div><div class="campus-sub">Est. 2023</div></div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main id="main">
+
+<!-- ===== DASHBOARD ===== -->
+<div id="page-dashboard" class="page-active">
+  <div class="page-header">
+    <div class="page-title">Dashboard</div>
+    <div class="page-sub">Kinevox Academy Institute — Management Overview</div>
+  </div>
+  <div class="page-body">
+    <div class="stat-grid">
+      <div class="stat-card purple">
+        <div class="stat-icon">👥</div>
+        <div class="stat-val" id="dash-emp-count">2</div>
+        <div class="stat-label">Total Employees</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-icon">🎓</div>
+        <div class="stat-val" id="dash-stu-count">3</div>
+        <div class="stat-label">Total Students</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon">📚</div>
+        <div class="stat-val" id="dash-crs-count">4</div>
+        <div class="stat-label">Active Courses</div>
+      </div>
+      <div class="stat-card gold">
+        <div class="stat-icon">₹</div>
+        <div class="stat-val" id="dash-rev">83K</div>
+        <div class="stat-label">Monthly Revenue</div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:20px">
+      <div class="card">
+        <div class="section-title">Recent Employees</div>
+        <div id="dash-emp-list"></div>
+      </div>
+      <div class="card">
+        <div class="section-title">Course Enrollment</div>
+        <div id="dash-course-bars"></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="section-title">Recent Students</div>
+        <div id="dash-stu-list"></div>
+      </div>
+      <div class="card">
+        <div class="section-title">Quick Actions</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+          <button class="btn btn-outline" onclick="showPage('employees',document.querySelector('[onclick*=employees]'));openEmpModal()" style="justify-content:center;padding:16px;flex-direction:column;gap:6px;font-size:12px">
+            <span style="font-size:24px">➕</span>Add Employee
+          </button>
+          <button class="btn btn-outline" onclick="showPage('students',document.querySelector('[onclick*=students]'));openStuModal()" style="justify-content:center;padding:16px;flex-direction:column;gap:6px;font-size:12px">
+            <span style="font-size:24px">🎓</span>Add Student
+          </button>
+          <button class="btn btn-outline" onclick="showPage('courses',document.querySelector('[onclick*=courses]'));openCrsModal()" style="justify-content:center;padding:16px;flex-direction:column;gap:6px;font-size:12px">
+            <span style="font-size:24px">📚</span>New Course
+          </button>
+          <button class="btn btn-outline" onclick="showPage('payroll',document.querySelector('[onclick*=payroll]'))" style="justify-content:center;padding:16px;flex-direction:column;gap:6px;font-size:12px">
+            <span style="font-size:24px">💳</span>Generate ID
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== EMPLOYEES ===== -->
+<div id="page-employees" style="display:none">
+  <div class="page-header">
+    <div class="page-title">Employees</div>
+    <div class="page-sub">Manage staff profiles, schedules, attendance and payroll</div>
+    <div class="page-tabs">
+      <button class="tab-btn active" onclick="empTab('list',this)">All Employees</button>
+      <button class="tab-btn" onclick="empTab('schedule',this)">Schedule</button>
+      <button class="tab-btn" onclick="empTab('attendance',this)">Attendance</button>
+    </div>
+  </div>
+  <div class="page-body">
+    <!-- LIST TAB -->
+    <div id="emp-tab-list" class="tab-panel active">
+      <div class="action-bar">
+        <div class="search-box"><span>🔍</span><input type="text" placeholder="Search employees..." oninput="filterEmps(this.value)"/></div>
+        <button class="btn btn-primary" onclick="openEmpModal()">➕ Add Employee</button>
+      </div>
+      <div id="emp-grid" class="grid-2"></div>
+    </div>
+
+    <!-- SCHEDULE TAB -->
+    <div id="emp-tab-schedule" class="tab-panel">
+      <div id="schedule-view"></div>
+    </div>
+
+    <!-- ATTENDANCE TAB -->
+    <div id="emp-tab-attendance" class="tab-panel">
+      <div id="attendance-view"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== STUDENTS ===== -->
+<div id="page-students" style="display:none">
+  <div class="page-header">
+    <div class="page-title">Students</div>
+    <div class="page-sub">Manage enrollment, progress and certificates</div>
+    <div class="page-tabs">
+      <button class="tab-btn active" onclick="stuTab('list',this)">All Students</button>
+      <button class="tab-btn" onclick="stuTab('completed',this)">Completed</button>
+      <button class="tab-btn" onclick="stuTab('certificates',this)">Certificates</button>
+    </div>
+  </div>
+  <div class="page-body">
+    <div id="stu-tab-list" class="tab-panel active">
+      <div class="action-bar">
+        <div class="search-box"><span>🔍</span><input type="text" placeholder="Search students..." oninput="filterStus(this.value)"/></div>
+        <button class="btn btn-primary" onclick="openStuModal()">➕ Add Student</button>
+      </div>
+      
+      <!-- FILTER & SORT SECTION -->
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <span style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase">Filter By:</span>
+          <select id="filter-name" onchange="applyFiltersAndSort()" style="max-width:150px">
+            <option value="">All Names</option>
+          </select>
+          <select id="filter-doj" onchange="applyFiltersAndSort()" style="max-width:150px">
+            <option value="">All Dates</option>
+          </select>
+          <select id="filter-percentage" onchange="applyFiltersAndSort()" style="max-width:150px">
+            <option value="">All Percentages</option>
+            <option value="80-100">80-100%</option>
+            <option value="60-79">60-79%</option>
+            <option value="40-59">40-59%</option>
+            <option value="0-39">0-39%</option>
+          </select>
+          <select id="filter-school" onchange="applyFiltersAndSort()" style="max-width:150px">
+            <option value="">All Schools</option>
+          </select>
+          <select id="filter-course" onchange="applyFiltersAndSort()" style="max-width:150px">
+            <option value="">All Courses</option>
+          </select>
+          <select id="filter-trainer" onchange="applyFiltersAndSort()" style="max-width:150px">
+            <option value="">All Trainers</option>
+          </select>
+          <select id="filter-status" onchange="applyFiltersAndSort()" style="max-width:150px">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="completed">Completed</option>
+            <option value="inactive">Inactive</option>
+          </select>
+          <button class="btn btn-outline btn-sm" onclick="resetFilters()">↻ Reset</button>
+          
+          <span style="margin-left:auto;font-size:12px;color:var(--text3)">Sort:</span>
+          <select id="sort-by" onchange="applyFiltersAndSort()" style="max-width:150px">
+            <option value="name">Name (A-Z)</option>
+            <option value="name-desc">Name (Z-A)</option>
+            <option value="doj">Date of Joining (Oldest)</option>
+            <option value="doj-desc">Date of Joining (Newest)</option>
+            <option value="percentage">Percentage (Low to High)</option>
+            <option value="percentage-desc">Percentage (High to Low)</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Student</th><th>Course</th><th>Date of Joining</th><th>School</th><th>Trainer</th><th>Percentage</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="stu-table"></tbody>
+        </table>
+      </div>
+    </div>
+    <div id="stu-tab-completed" class="tab-panel">
+      <div id="completed-stu-list" class="grid-2"></div>
+    </div>
+    <div id="stu-tab-certificates" class="tab-panel">
+      <div id="cert-list" class="grid-2"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== COURSES ===== -->
+<div id="page-courses" style="display:none">
+  <div class="page-header">
+    <div class="page-title">Courses</div>
+    <div class="page-sub">Manage course catalogue and assignments</div>
+  </div>
+  <div class="page-body">
+    <div class="action-bar">
+      <div class="search-box"><span>🔍</span><input type="text" placeholder="Search courses..." oninput="filterCrs(this.value)"/></div>
+      <button class="btn btn-primary" onclick="openCrsModal()">➕ Add Course</button>
+    </div>
+    <div id="course-grid" class="grid-3"></div>
+  </div>
+</div>
+
+<!-- ===== PAYROLL & IDs ===== -->
+<div id="page-payroll" style="display:none">
+  <div class="page-header">
+    <div class="page-title">Payroll & ID Cards</div>
+    <div class="page-sub">Generate salary slips and employee ID cards with QR</div>
+    <div class="page-tabs">
+      <button class="tab-btn active" onclick="payTab('salary',this)">Salary Slips</button>
+      <button class="tab-btn" onclick="payTab('idcards',this)">ID Cards</button>
+    </div>
+  </div>
+  <div class="page-body">
+    <div id="pay-tab-salary" class="tab-panel active">
+      <div id="salary-emp-list" class="grid-2"></div>
+    </div>
+    <div id="pay-tab-idcards" class="tab-panel">
+      <div id="id-card-list" class="grid-3"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== REPORTS ===== -->
+<div id="page-reports" style="display:none">
+  <div class="page-header">
+    <div class="page-title">Reports</div>
+    <div class="page-sub">Institute analytics and performance overview</div>
+  </div>
+  <div class="page-body">
+    <div class="grid-2" style="margin-bottom:20px">
+      <div class="card">
+        <div class="section-title">Revenue by Course</div>
+        <div id="rev-chart" style="margin-top:12px"></div>
+      </div>
+      <div class="card">
+        <div class="section-title">Student Distribution</div>
+        <div id="stu-dist" style="margin-top:12px"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Institute Summary</div>
+      <div id="inst-summary"></div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- ===== MODALS ===== -->
+
+<!-- ADD/EDIT EMPLOYEE MODAL -->
+<div id="emp-modal" class="modal-overlay" style="display:none">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title" id="emp-modal-title">Add Employee</div>
+      <button class="modal-close" onclick="closeModal('emp-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:180px 1fr;gap:24px">
+        <div>
+          <div class="file-input-wrap" style="height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center" onclick="document.getElementById('emp-photo-input').click()">
+            <div id="emp-photo-preview" style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent3));display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:8px;overflow:hidden">👤</div>
+            <div class="file-label" style="font-size:11px">Click to upload photo</div>
+            <input type="file" id="emp-photo-input" accept="image/*" onchange="previewEmpPhoto(this)" style="display:none">
+          </div>
+        </div>
+        <div>
+          <div class="form-grid">
+            <div class="form-group"><label>Full Name *</label><input type="text" id="ef-name" placeholder="e.g. Arjun Sharma"></div>
+            <div class="form-group"><label>Employee ID</label><input type="text" id="ef-id" placeholder="Auto-generated" readonly style="opacity:.5"></div>
+            <div class="form-group"><label>Role / Designation *</label><input type="text" id="ef-role" placeholder="e.g. Senior Trainer"></div>
+            <div class="form-group"><label>Department</label>
+              <select id="ef-dept">
+                <option>Programming</option><option>Design</option><option>Management</option><option>Marketing</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Email *</label><input type="email" id="ef-email" placeholder="name@Kinevox Academy.in"></div>
+            <div class="form-group"><label>Phone</label><input type="tel" id="ef-phone" placeholder="10-digit number"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="form-grid">
+        <div class="form-group"><label>Date of Joining</label><input type="date" id="ef-doj"></div>
+        <div class="form-group"><label>Monthly Salary (₹)</label><input type="number" id="ef-salary" placeholder="e.g. 40000"></div>
+        <div class="form-group"><label>Schedule</label><input type="text" id="ef-schedule" placeholder="e.g. Mon-Fri 9AM-5PM"></div>
+        <div class="form-group"><label>Status</label>
+          <select id="ef-status"><option value="active">Active</option><option value="inactive">Inactive</option><option value="leave">On Leave</option></select>
+        </div>
+        <div class="form-group"><label>Bonus (₹)</label><input type="number" id="ef-bonus" placeholder="0"></div>
+        <div class="form-group"><label>Credits / Points</label><input type="number" id="ef-credits" placeholder="0"></div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="section-title" style="margin-bottom:12px">Documents Upload</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Signature</label>
+          <div class="file-input-wrap" id="wrap-sign">
+            <div class="file-icon" id="icon-sign">✍️</div>
+            <div class="file-label" id="label-sign">Upload Signature Image</div>
+            <input type="file" id="ef-sign" accept="image/*" onchange="handleDocUpload(this,'sign','sign')">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Identity Document (Aadhar/PAN)</label>
+          <div class="file-input-wrap" id="wrap-idoc">
+            <div class="file-icon" id="icon-idoc">🪪</div>
+            <div class="file-label" id="label-idoc">Upload ID Proof (PDF/Image)</div>
+            <input type="file" id="ef-idoc" accept=".pdf,image/*" onchange="handleDocUpload(this,'idoc','id_doc')">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Resume / CV</label>
+          <div class="file-input-wrap" id="wrap-resume">
+            <div class="file-icon" id="icon-resume">📄</div>
+            <div class="file-label" id="label-resume">Upload Resume (PDF)</div>
+            <input type="file" id="ef-resume" accept=".pdf,.doc,.docx" onchange="handleDocUpload(this,'resume','resume')">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Other Documents</label>
+          <div class="file-input-wrap" id="wrap-other">
+            <div class="file-icon" id="icon-other">📁</div>
+            <div class="file-label" id="label-other">Upload Additional Docs</div>
+            <input type="file" id="ef-other" accept=".pdf,image/*" onchange="handleDocUpload(this,'other','other')">
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="form-group">
+        <label>Assign Courses (hold Ctrl/Cmd for multiple)</label>
+        <select id="ef-courses" multiple style="height:100px"></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('emp-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEmployee()">💾 Save Employee</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW/EDIT EMPLOYEE PROFILE MODAL -->
+<div id="emp-view-modal" class="modal-overlay" style="display:none">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title">Employee Profile</div>
+      <button class="modal-close" onclick="closeModal('emp-view-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="emp-view-body"></div>
+    <div class="modal-footer" id="emp-view-footer"></div>
+  </div>
+</div>
+
+<!-- ADD/EDIT STUDENT MODAL -->
+<div id="stu-modal" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="stu-modal-title">Add Student</div>
+      <button class="modal-close" onclick="closeModal('stu-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Full Name *</label><input type="text" id="sf-name" placeholder="Student full name"></div>
+        <div class="form-group"><label>Student ID</label><input type="text" id="sf-id" placeholder="Auto-generated" readonly style="opacity:.5"></div>
+        <div class="form-group"><label>Email</label><input type="email" id="sf-email" placeholder="student@email.com"></div>
+        <div class="form-group"><label>Phone</label><input type="tel" id="sf-phone" placeholder="10-digit number"></div>
+        <div class="form-group"><label>Date of Birth</label><input type="date" id="sf-dob"></div>
+        <div class="form-group"><label>School / College</label><input type="text" id="sf-institution" placeholder="Institution name"></div>
+        <div class="form-group"><label>Enroll Date</label><input type="date" id="sf-enroll"></div>
+        <div class="form-group"><label>Status</label>
+          <select id="sf-status"><option value="active">Active</option><option value="inactive">Inactive</option><option value="completed">Completed</option></select>
+        </div>
+        <div class="form-group"><label>Assign Course</label>
+          <select id="sf-course"><option value="">Select Course</option></select>
+        </div>
+        <div class="form-group"><label>Assign Trainer</label>
+          <select id="sf-trainer"><option value="">Select Trainer</option></select>
+        </div>
+        <div class="form-group"><label>Progress (%)</label><input type="number" id="sf-progress" min="0" max="100" placeholder="0" value="0"></div>
+        <div class="form-group"><label>Photo</label>
+          <div class="file-input-wrap" style="padding:10px">
+            <div class="file-label">Upload Student Photo</div>
+            <input type="file" id="sf-photo" accept="image/*">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('stu-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveStudent()">💾 Save Student</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT COURSE MODAL -->
+<div id="crs-modal" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="crs-modal-title">Add Course</div>
+      <button class="modal-close" onclick="closeModal('crs-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Course Name *</label><input type="text" id="cf-name" placeholder="e.g. Web Development"></div>
+        <div class="form-group"><label>Category</label>
+          <select id="cf-cat"><option>Programming</option><option>Design</option><option>Game Dev</option><option>Digital Marketing</option></select>
+        </div>
+        <div class="form-group"><label>Duration</label><input type="text" id="cf-dur" placeholder="e.g. 3 months"></div>
+        <div class="form-group"><label>Fee (₹)</label><input type="number" id="cf-fee" placeholder="e.g. 8000"></div>
+        <div class="form-group"><label>Total Seats</label><input type="number" id="cf-seats" placeholder="e.g. 15"></div>
+        <div class="form-group"><label>Assign Trainer</label>
+          <select id="cf-trainer"><option value="">Select Trainer</option></select>
+        </div>
+        <div class="form-group form-full"><label>Description</label><textarea id="cf-desc" placeholder="Course overview, topics covered..."></textarea></div>
+        <div class="form-group"><label>Status</label>
+          <select id="cf-status"><option value="active">Active</option><option value="upcoming">Upcoming</option><option value="closed">Closed</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('crs-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCourse()">💾 Save Course</button>
+    </div>
+  </div>
+</div>
+
+<!-- CERTIFICATE MODAL -->
+<div id="cert-modal" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Completion Certificate</div>
+      <button class="modal-close" onclick="closeModal('cert-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="cert-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('cert-modal')">Close</button>
+      <button class="btn btn-primary" id="cert-download-btn" onclick="downloadCertificate(currentCertStudentId)">⬇️ Download Certificate PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- SALARY SLIP MODAL -->
+<div id="slip-modal" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Salary Slip</div>
+      <button class="modal-close" onclick="closeModal('slip-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="slip-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('slip-modal')">Close</button>
+      <button class="btn btn-primary" onclick="window.print()">🖨️ Print Slip</button>
+    </div>
+  </div>
+</div>
+
+<!-- ID CARD MODAL -->
+<div id="idcard-modal" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Employee ID Card</div>
+      <button class="modal-close" onclick="closeModal('idcard-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="idcard-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('idcard-modal')">Close</button>
+      <button class="btn btn-primary" onclick="window.print()">🖨️ Print ID Card</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== API LAYER ==========
+const API_BASE = '/api';
+let _authToken = sessionStorage.getItem('kv_token') || '';
+
+function _headers(){
+  return { 'Content-Type':'application/json', 'Authorization': 'Bearer '+_authToken };
+}
+
+async function apiGet(path){
+  const r = await fetch(API_BASE+path, { headers: _headers() });
+  const j = await r.json();
+  if(!r.ok) throw new Error(j.error || 'API error');
+  return j.data !== undefined ? j.data : j;
+}
+
+async function apiPost(path, body){
+  const r = await fetch(API_BASE+path, { method:'POST', headers:_headers(), body:JSON.stringify(body) });
+  const j = await r.json();
+  if(!r.ok) throw new Error(j.error || 'API error');
+  return j.data !== undefined ? j.data : j;
+}
+
+async function apiPut(path, body){
+  const r = await fetch(API_BASE+path, { method:'PUT', headers:_headers(), body:JSON.stringify(body) });
+  const j = await r.json();
+  if(!r.ok) throw new Error(j.error || 'API error');
+  return j.data !== undefined ? j.data : j;
+}
+
+async function apiDelete(path){
+  const r = await fetch(API_BASE+path, { method:'DELETE', headers:_headers() });
+  const j = await r.json();
+  if(!r.ok) throw new Error(j.error || 'API error');
+  return j;
+}
+
+// Normalise API employee → frontend shape (API uses snake_case, frontend uses camelCase)
+function _normEmp(e){
+  return {
+    ...e,
+    assignedTo: e.assigned_to || e.assignedTo,
+    enrollDate: e.enroll_date || e.enrollDate,
+    doj: e.doj || '',
+    attendance: e.attendance || {present:0,absent:0,late:0},
+    courses: e.courses || [],
+    photo: e.photo || null,
+    sign: e.sign || null,
+    idDoc: e.id_doc || e.idDoc || null,
+    resume: e.resume || null,
+  };
+}
+
+function _normStu(s){
+  return {
+    ...s,
+    assignedTo: s.assigned_to || s.assignedTo,
+    enrollDate: s.enroll_date || s.enrollDate,
+    completed: !!s.completed,
+    photo: s.photo || null,
+  };
+}
+
+function _normCrs(c){
+  return {
+    ...c,
+    assignedTo: c.assigned_to || c.assignedTo,
+  };
+}
+
+// ========== STATE ==========
+let employees = [];
+let students  = [];
+let courses   = [];
+
+let editEmpId = null, editStuId = null, editCrsId = null;
+
+const COURSE_ICONS = {Programming:'💻',Design:'🎨','Game Dev':'🎮','Digital Marketing':'📱'};
+
+// ========== DATA LOADERS ==========
+async function loadEmployees(){
+  try {
+    const data = await apiGet('/employees');
+    employees = data.map(_normEmp);
+  } catch(e){ console.error('loadEmployees', e); }
+}
+
+async function loadStudents(){
+  try {
+    const data = await apiGet('/students');
+    students = data.map(_normStu);
+  } catch(e){ console.error('loadStudents', e); }
+}
+
+async function loadCourses(){
+  try {
+    const data = await apiGet('/courses');
+    courses = data.map(_normCrs);
+  } catch(e){ console.error('loadCourses', e); }
+}
+
+async function loadAll(){
+  await Promise.all([loadEmployees(), loadStudents(), loadCourses()]);
+}
+
+// ========== NAVIGATION ==========
+function showPage(name, btn) {
+  document.querySelectorAll('#main > div').forEach(d => d.style.display = 'none');
+  document.getElementById('page-'+name).style.display = 'block';
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderPage(name);
+}
+
+async function renderPage(name) {
+  if(name==='dashboard'){ await loadAll(); renderDashboard(); }
+  else if(name==='employees'){ await loadEmployees(); renderEmployees(); }
+  else if(name==='students'){ await loadAll(); renderStudents(); initializeFilterOptions(); }
+  else if(name==='courses'){ await loadAll(); renderCourses(); }
+  else if(name==='payroll'){ await loadEmployees(); renderPayroll(); }
+  else if(name==='reports'){ await loadAll(); renderReports(); }
+}
+
+// ========== SIDEBAR ==========
+function toggleSidebar() {
+  const s = document.getElementById('sidebar');
+  const m = document.getElementById('main');
+  const b = document.getElementById('collapseBtn');
+  s.classList.toggle('collapsed');
+  m.classList.toggle('expanded');
+  b.textContent = s.classList.contains('collapsed') ? '▶' : '◀';
+}
+
+// ========== TABS ==========
+function switchTab(prefix, name, btn) {
+  document.querySelectorAll(`[id^="${prefix}-tab-"]`).forEach(p => p.classList.remove('active'));
+  document.getElementById(`${prefix}-tab-${name}`).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function empTab(n,b){switchTab('emp',n,b); if(n==='schedule')renderSchedule(); if(n==='attendance')renderAttendance();}
+function stuTab(n,b){switchTab('stu',n,b); if(n==='completed')renderCompleted(); if(n==='certificates')renderCertList();}
+function payTab(n,b){switchTab('pay',n,b);}
+
+// ========== MODALS ==========
+function openModal(id){document.getElementById(id).style.display='flex';}
+function closeModal(id){document.getElementById(id).style.display='none';}
+
+// ========== DELETE FUNCTIONS ==========
+async function deleteStudent(studentId){
+  if(confirm('⚠️ Are you sure you want to DELETE this student? This action cannot be undone.')){
+    try {
+      await apiDelete('/students/'+studentId);
+      students = students.filter(s=>s.id!==studentId);
+      renderStudents();
+      renderDashboard();
+      toast('Student deleted successfully');
+    } catch(e){ toast(e.message||'Delete failed',true); }
+  }
+}
+
+async function deleteEmployee(empId){
+  if(confirm('⚠️ Are you sure you want to DELETE this employee? This action cannot be undone.')){
+    try {
+      await apiDelete('/employees/'+empId);
+      employees = employees.filter(e=>e.id!==empId);
+      renderEmployees();
+      renderDashboard();
+      toast('Employee deleted successfully');
+    } catch(e){ toast(e.message||'Delete failed',true); }
+  }
+}
+
+// ========== TOAST ==========
+function toast(msg, isError=false){
+  const t = document.getElementById('toast');
+  t.textContent = isError ? '✕ '+msg : '✓ '+msg;
+  t.className = 'toast show' + (isError?' error':'');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ========== AVATAR ==========
+function initials(name){return name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);}
+function avatarHtml(name, size='', imgSrc=null){
+  const s = size==='lg' ? 'avatar-lg' : '';
+  if(imgSrc) return `<div class="avatar ${s}" style="background:none"><img class="avatar-img" src="${imgSrc}"/></div>`;
+  const colors = ['135deg,#6c63ff,#38bdf8','135deg,#f59e0b,#ef4444','135deg,#10b981,#3b82f6','135deg,#ec4899,#8b5cf6'];
+  const idx = name.charCodeAt(0)%colors.length;
+  return `<div class="avatar ${s}" style="background:linear-gradient(${colors[idx]})">${initials(name)}</div>`;
+}
+
+// ========== DASHBOARD ==========
+function renderDashboard(){
+  document.getElementById('dash-emp-count').textContent = employees.length;
+  document.getElementById('dash-stu-count').textContent = students.length;
+  document.getElementById('dash-crs-count').textContent = courses.filter(c=>c.status==='active').length;
+  const rev = courses.reduce((a,c)=>a+c.fee*c.enrolled,0);
+  document.getElementById('dash-rev').textContent = (rev/1000).toFixed(0)+'K';
+
+  // Recent employees
+  let empHtml = '';
+  employees.slice(0,3).forEach(e=>{
+    empHtml += `<div class="flex items-center gap-12" style="padding:10px 0;border-bottom:1px solid var(--border)">
+      ${avatarHtml(e.name)}
+      <div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--text)">${e.name}</div><div style="font-size:12px;color:var(--text2)">${e.role}</div></div>
+      <span class="badge ${e.status==='active'?'badge-green':'badge-red'}">${e.status}</span>
+    </div>`;
+  });
+  document.getElementById('dash-emp-list').innerHTML = empHtml;
+
+  // Course bars
+  let barHtml = '';
+  courses.slice(0,5).forEach(c=>{
+    const pct = Math.round((c.enrolled/c.seats)*100);
+    barHtml += `<div style="margin-bottom:12px">
+      <div class="flex justify-between" style="margin-bottom:4px">
+        <span style="font-size:13px;color:var(--text2)">${c.name}</span>
+        <span style="font-size:12px;color:var(--text3)">${c.enrolled}/${c.seats}</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  });
+  document.getElementById('dash-course-bars').innerHTML = barHtml;
+
+  // Recent students
+  let stuHtml = '';
+  students.slice(0,4).forEach(s=>{
+    stuHtml += `<div class="flex items-center gap-12" style="padding:10px 0;border-bottom:1px solid var(--border)">
+      ${avatarHtml(s.name)}
+      <div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--text)">${s.name}</div><div style="font-size:12px;color:var(--text2)">${s.course}</div></div>
+      <div style="text-align:right"><div style="font-size:12px;font-weight:600;color:var(--accent2)">${s.progress}%</div><div class="progress-bar" style="width:60px;margin-top:4px"><div class="progress-fill" style="width:${s.progress}%"></div></div></div>
+    </div>`;
+  });
+  document.getElementById('dash-stu-list').innerHTML = stuHtml;
+}
+
+// ========== EMPLOYEES ==========
+function renderEmployees(){
+  renderEmpGrid(employees);
+}
+
+function renderEmpGrid(list){
+  let html = '';
+  list.forEach(e=>{
+    html += `<div class="emp-card" onclick="viewEmployee('${e.id}')">
+      <div class="emp-card-header">
+        ${avatarHtml(e.name, 'lg')}
+        <div class="emp-info">
+          <div class="emp-name">${e.name}</div>
+          <div class="emp-role">${e.role}</div>
+          <div style="margin-top:6px"><span class="badge ${e.status==='active'?'badge-green':e.status==='leave'?'badge-gold':'badge-red'}">${e.status}</span><span class="badge badge-purple" style="margin-left:4px">${e.dept}</span></div>
+        </div>
+      </div>
+      <div class="emp-meta">
+        <div class="emp-meta-item"><span>ID</span><strong>${e.id}</strong></div>
+        <div class="emp-meta-item"><span>Salary</span><strong>₹${e.salary.toLocaleString()}</strong></div>
+        <div class="emp-meta-item"><span>Schedule</span><strong style="font-size:11px">${e.schedule}</strong></div>
+        <div class="emp-meta-item"><span>Credits</span><strong>${e.credits} pts</strong></div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${(e.courses||[]).map(c=>`<span class="tag">${c}</span>`).join('')}
+      </div>
+      <div class="emp-actions" onclick="event.stopPropagation()">
+        <button class="btn btn-outline btn-sm" onclick="editEmployee('${e.id}')">✏️ Edit</button>
+        <button class="btn btn-success btn-sm" onclick="downloadSalaryBill('${e.id}')">📊 Salary</button>
+        <button class="btn btn-outline btn-sm" onclick="downloadIdCard('${e.id}')">📄 ID Card</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteEmployee('${e.id}')">🗑️ Delete</button>
+      </div>
+    </div>`;
+  });
+  document.getElementById('emp-grid').innerHTML = html || '<div style="color:var(--text3);text-align:center;padding:40px">No employees found</div>';
+}
+
+function filterEmps(q){
+  const filtered = employees.filter(e=>e.name.toLowerCase().includes(q.toLowerCase())||e.role.toLowerCase().includes(q.toLowerCase())||e.id.toLowerCase().includes(q.toLowerCase()));
+  renderEmpGrid(filtered);
+}
+
+function openEmpModal(prefill=null){
+  editEmpId = null;
+  document.getElementById('emp-modal-title').textContent = 'Add Employee';
+  const fields = ['name','id','role','email','phone','doj','salary','schedule','status','bonus','credits'];
+  fields.forEach(f=>{ const el=document.getElementById('ef-'+f); if(el) el.value=''; });
+  document.getElementById('ef-id').value = 'EMP' + String(employees.length+1).padStart(3,'0');
+  document.getElementById('ef-dept').value = 'Programming';
+  document.getElementById('ef-status').value = 'active';
+  document.getElementById('emp-photo-preview').innerHTML = '👤';
+  _resetDocUploads();
+
+  // Fill course select
+  const cs = document.getElementById('ef-courses');
+  cs.innerHTML = courses.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
+
+  openModal('emp-modal');
+}
+
+function editEmployee(id){
+  const e = employees.find(x=>x.id===id);
+  if(!e) return;
+  editEmpId = id;
+  document.getElementById('emp-modal-title').textContent = 'Edit Employee — '+e.name;
+
+  document.getElementById('ef-name').value = e.name;
+  document.getElementById('ef-id').value = e.id;
+  document.getElementById('ef-role').value = e.role;
+  document.getElementById('ef-dept').value = e.dept;
+  document.getElementById('ef-email').value = e.email;
+  document.getElementById('ef-phone').value = e.phone;
+  document.getElementById('ef-doj').value = e.doj;
+  document.getElementById('ef-salary').value = e.salary;
+  document.getElementById('ef-schedule').value = e.schedule;
+  document.getElementById('ef-status').value = e.status;
+  document.getElementById('ef-bonus').value = e.bonus;
+  document.getElementById('ef-credits').value = e.credits;
+
+  if(e.photo) document.getElementById('emp-photo-preview').innerHTML = `<img src="${e.photo}" style="width:80px;height:80px;border-radius:50%;object-fit:cover"/>`;
+
+  const cs = document.getElementById('ef-courses');
+  cs.innerHTML = courses.map(c=>`<option value="${c.name}" ${(e.courses||[]).includes(c.name)?'selected':''}>${c.name}</option>`).join('');
+
+  openModal('emp-modal');
+}
+
+function previewEmpPhoto(input){
+  if(input.files && input.files[0]){
+    const r = new FileReader();
+    r.onload = e => {
+      document.getElementById('emp-photo-preview').innerHTML = `<img src="${e.target.result}" style="width:80px;height:80px;border-radius:50%;object-fit:cover"/>`;
+    };
+    r.readAsDataURL(input.files[0]);
+  }
+}
+
+// ── Document upload handler ─────────────────────────────────────────────────
+// Called immediately when user picks a file; uploads to server right away.
+// emp_id is read from ef-id field (may be empty if employee not yet saved).
+function handleDocUpload(input, wrapId, docType) {
+  // Always buffer the file — never upload immediately on file select.
+  // • New employee  → _uploadPendingDocs() runs after the record is saved.
+  // • Edit employee → _uploadPendingDocs() runs after the PUT succeeds.
+  const file = input.files[0];
+  if (!file) return;
+
+  const wrap  = document.getElementById('wrap-' + wrapId);
+  const icon  = document.getElementById('icon-' + wrapId);
+  const label = document.getElementById('label-' + wrapId);
+
+  // Store on the element so _uploadPendingDocs can find it later
+  input._pendingFile    = file;
+  input._pendingDocType = docType;
+
+  // Show a "ready to upload" state (not yet uploaded)
+  wrap.classList.remove('uploading', 'uploaded', 'upload-error');
+  wrap.classList.add('uploaded');
+  icon.textContent  = '📎';
+  label.textContent = '✓ ' + file.name + ' — will upload on save';
+}
+
+// Upload all pending documents in ONE batch request → ONE email
+async function _uploadPendingDocs(empId) {
+  const slots = [
+    {id:'ef-sign',   docType:'sign',   wrapId:'sign'},
+    {id:'ef-idoc',   docType:'id_doc', wrapId:'idoc'},
+    {id:'ef-resume', docType:'resume', wrapId:'resume'},
+    {id:'ef-other',  docType:'other',  wrapId:'other'},
+  ];
+
+  // Collect only slots that have a pending file
+  const pending = slots.filter(s => {
+    const input = document.getElementById(s.id);
+    return input && input._pendingFile;
+  });
+
+  if (pending.length === 0) return;
+
+  // Show uploading state on all pending boxes
+  pending.forEach(s => {
+    const wrap  = document.getElementById('wrap-' + s.wrapId);
+    const icon  = document.getElementById('icon-' + s.wrapId);
+    const label = document.getElementById('label-' + s.wrapId);
+    wrap.classList.remove('uploaded', 'upload-error');
+    wrap.classList.add('uploading');
+    icon.textContent = '';
+    label.innerHTML  = '<span class="doc-upload-spinner"></span>Uploading…';
+  });
+
+  // Build ONE FormData with all files — field name = doc_type key
+  const fd = new FormData();
+  pending.forEach(s => {
+    const input = document.getElementById(s.id);
+    fd.append(s.docType, input._pendingFile, input._pendingFile.name);
+  });
+
+  try {
+    const r = await fetch(API_BASE + '/uploads/employee/' + empId + '/documents', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + _authToken },
+      body: fd,
+    });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || 'Upload failed');
+
+    // Mark all as done
+    pending.forEach(s => {
+      const input = document.getElementById(s.id);
+      const wrap  = document.getElementById('wrap-' + s.wrapId);
+      const icon  = document.getElementById('icon-' + s.wrapId);
+      const label = document.getElementById('label-' + s.wrapId);
+      wrap.classList.remove('uploading', 'uploaded');
+      wrap.classList.add('done');
+      icon.textContent  = '✅';
+      label.textContent = '✓ Uploaded: ' + input._pendingFile.name;
+      input._pendingFile = null;
+    });
+    toast('Documents uploaded ✓ — 1 email sent');
+  } catch(e) {
+    // Mark all as failed
+    pending.forEach(s => {
+      const wrap  = document.getElementById('wrap-' + s.wrapId);
+      const icon  = document.getElementById('icon-' + s.wrapId);
+      const label = document.getElementById('label-' + s.wrapId);
+      wrap.classList.remove('uploading');
+      wrap.classList.add('upload-error');
+      icon.textContent  = '❌';
+      label.textContent = 'Failed: ' + (e.message || 'error');
+    });
+    toast(e.message || 'Document upload failed', true);
+  }
+}
+
+// Reset document upload boxes when opening the modal
+function _resetDocUploads() {
+  [['sign','✍️','Upload Signature Image'],
+   ['idoc','🪪','Upload ID Proof (PDF/Image)'],
+   ['resume','📄','Upload Resume (PDF)'],
+   ['other','📁','Upload Additional Docs']
+  ].forEach(([id, emoji, text]) => {
+    const wrap  = document.getElementById('wrap-'+id);
+    const icon  = document.getElementById('icon-'+id);
+    const label = document.getElementById('label-'+id);
+    if (wrap)  { wrap.classList.remove('uploading','uploaded','upload-error'); }
+    if (icon)  { icon.textContent  = emoji; }
+    if (label) { label.textContent = text; }
+    const input = document.getElementById('ef-'+id);
+    if (input) { input.value = ''; input._pendingFile = null; }
+  });
+}
+
+async function saveEmployee(){
+  const name = document.getElementById('ef-name').value.trim();
+  if(!name){ toast('Name is required',true); return; }
+  const selCourses = Array.from(document.getElementById('ef-courses').selectedOptions).map(o=>o.value);
+  const photoEl = document.getElementById('emp-photo-preview').querySelector('img');
+
+  const data = {
+    id: document.getElementById('ef-id').value,
+    name,
+    role: document.getElementById('ef-role').value,
+    dept: document.getElementById('ef-dept').value,
+    email: document.getElementById('ef-email').value,
+    phone: document.getElementById('ef-phone').value,
+    doj: document.getElementById('ef-doj').value,
+    salary: parseInt(document.getElementById('ef-salary').value)||0,
+    schedule: document.getElementById('ef-schedule').value,
+    status: document.getElementById('ef-status').value,
+    bonus: parseInt(document.getElementById('ef-bonus').value)||0,
+    credits: parseInt(document.getElementById('ef-credits').value)||0,
+    courses: selCourses,
+    photo: photoEl ? photoEl.src : null,
+  };
+
+  try {
+    if(editEmpId){
+      const updated = await apiPut('/employees/'+editEmpId, data);
+      const idx = employees.findIndex(e=>e.id===editEmpId);
+      employees[idx] = _normEmp(updated);
+      // Upload any docs buffered during edit
+      await _uploadPendingDocs(editEmpId);
+    } else {
+      const created = await apiPost('/employees', data);
+      employees.push(_normEmp(created));
+      // Upload docs buffered during new-employee form
+      await _uploadPendingDocs(created.id);
+    }
+    closeModal('emp-modal');
+    renderEmployees();
+    renderDashboard();
+    toast('Employee saved successfully');
+  } catch(e){
+    toast(e.message || 'Save failed', true);
+  }
+}
+
+function viewEmployee(id){
+  const e = employees.find(x=>x.id===id);
+  if(!e) return;
+
+  const docs = [
+    {name:'Photo',key:'photo'},{name:'Signature',key:'sign'},{name:'ID Document',key:'idDoc'},{name:'Resume',key:'resume'}
+  ];
+
+  const body = `
+  <div class="profile-view">
+    <div>
+      <div class="profile-card">
+        ${avatarHtml(e.name,'lg',e.photo)}
+        <div class="profile-name">${e.name}</div>
+        <div class="profile-role">${e.role}</div>
+        <span class="badge ${e.status==='active'?'badge-green':e.status==='leave'?'badge-gold':'badge-red'}">${e.status}</span>
+        <div class="divider" style="width:100%"></div>
+        <div style="width:100%;text-align:left">
+          <div class="text-sm" style="margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Documents</div>
+          <div class="profile-docs">
+            ${docs.map(d=>`<div class="doc-item">
+              <span class="doc-name">${d.name}</span>
+              <span class="${e[d.key]?'doc-status-ok':'doc-status-no'}">${e[d.key]?'✓ Uploaded':'Not uploaded'}</span>
+            </div>`).join('')}
+          </div>
+        </div>
+        <div style="width:100%;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+          <button class="btn btn-outline btn-sm" onclick="editEmployee('${e.id}');closeModal('emp-view-modal')">✏️ Edit</button>
+          <button class="btn btn-success btn-sm" onclick="openSlipModal('${e.id}');closeModal('emp-view-modal')">💰 Slip</button>
+          <button class="btn btn-outline btn-sm" onclick="openIdCardModal('${e.id}');closeModal('emp-view-modal')">🪪 ID</button>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="section-title">Personal Details</div>
+        <div class="grid-2">
+          ${[['Employee ID',e.id],['Department',e.dept],['Email',e.email],['Phone',e.phone],['Date of Joining',e.doj],['Schedule',e.schedule]].map(([k,v])=>`
+          <div><div class="text-sm">${k}</div><div style="color:var(--text);margin-top:2px;font-weight:500">${v||'—'}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="section-title">Financial & Performance</div>
+        <div class="grid-2">
+          ${[['Base Salary','₹'+e.salary.toLocaleString()],['Bonus','₹'+e.bonus.toLocaleString()],['Credits',e.credits+' pts'],['Gross','₹'+(e.salary+e.bonus).toLocaleString()]].map(([k,v])=>`
+          <div style="background:var(--bg3);border-radius:8px;padding:12px"><div class="text-sm">${k}</div><div style="font-family:var(--head);font-size:20px;font-weight:700;color:var(--text);margin-top:4px">${v}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="section-title">Attendance (This Month)</div>
+        <div class="grid-3" style="margin-bottom:12px">
+          <div style="background:rgba(16,185,129,.1);border-radius:8px;padding:12px;text-align:center"><div style="font-size:24px;font-weight:700;color:var(--green)">${e.attendance.present}</div><div class="text-sm">Present</div></div>
+          <div style="background:rgba(239,68,68,.1);border-radius:8px;padding:12px;text-align:center"><div style="font-size:24px;font-weight:700;color:var(--red)">${e.attendance.absent}</div><div class="text-sm">Absent</div></div>
+          <div style="background:rgba(245,158,11,.1);border-radius:8px;padding:12px;text-align:center"><div style="font-size:24px;font-weight:700;color:var(--gold)">${e.attendance.late}</div><div class="text-sm">Late</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title">Assigned Courses</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
+          ${(e.courses||[]).map(c=>`<span class="tag" style="font-size:13px;padding:6px 12px">${c}</span>`).join('') || '<span class="text-sm">No courses assigned</span>'}
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  document.getElementById('emp-view-body').innerHTML = body;
+  document.getElementById('emp-view-footer').innerHTML = `<button class="btn btn-outline" onclick="closeModal('emp-view-modal')">Close</button>`;
+  openModal('emp-view-modal');
+}
+
+// ========== SCHEDULE ==========
+function renderSchedule(){
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  let html = '';
+  employees.forEach(e=>{
+    const workDays = e.schedule.includes('Mon-Fri') ? [0,1,2,3,4] : e.schedule.includes('Mon-Sat') ? [0,1,2,3,4,5] : e.schedule.includes('Tue-Sat') ? [1,2,3,4,5] : [0,1,2,3,4];
+    html += `<div class="card" style="margin-bottom:16px">
+      <div class="flex items-center gap-12" style="margin-bottom:14px">
+        ${avatarHtml(e.name)}
+        <div><div style="font-weight:600;color:var(--text)">${e.name}</div><div class="text-sm">${e.schedule}</div></div>
+        <button class="btn btn-outline btn-sm" style="margin-left:auto" onclick="editEmployee('${e.id}');closeModal('emp-view-modal')">✏️ Edit Schedule</button>
+      </div>
+      <div class="schedule-grid">
+        ${days.map((d,i)=>`<div class="sched-day ${workDays.includes(i)?'work':'off'}">
+          <div class="sched-day-name">${d}</div>
+          <div class="sched-day-status">${workDays.includes(i)?'Work':'Off'}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  });
+  document.getElementById('schedule-view').innerHTML = html;
+}
+
+// ========== ATTENDANCE ==========
+function renderAttendance(){
+  let html = '';
+  employees.forEach(e=>{
+    const total = 25;
+    const days = [];
+    for(let i=1;i<=total;i++){
+      const r = Math.random();
+      if(i>22) days.push('off');
+      else if(r<.08) days.push('absent');
+      else if(r<.15) days.push('late');
+      else days.push('present');
+    }
+    html += `<div class="card" style="margin-bottom:16px">
+      <div class="flex items-center gap-12" style="margin-bottom:14px">
+        ${avatarHtml(e.name)}
+        <div><div style="font-weight:600;color:var(--text)">${e.name}</div><div class="text-sm">May 2026</div></div>
+        <div style="margin-left:auto;display:flex;gap:12px">
+          <span style="font-size:12px;color:var(--green)">● ${e.attendance.present} Present</span>
+          <span style="font-size:12px;color:var(--red)">● ${e.attendance.absent} Absent</span>
+          <span style="font-size:12px;color:var(--gold)">● ${e.attendance.late} Late</span>
+        </div>
+      </div>
+      <div class="att-grid">
+        ${days.map((d,i)=>`<div class="att-day att-${d}" title="Day ${i+1}">${i+1}</div>`).join('')}
+      </div>
+    </div>`;
+  });
+  document.getElementById('attendance-view').innerHTML = html;
+}
+
+// ========== STUDENTS ==========
+function renderStudents(){
+  renderStuTable(students);
+}
+
+function renderStuTable(list){
+  let html = '';
+  list.forEach(s=>{
+    const trainer = employees.find(e=>e.id===s.assignedTo);
+    html += `<tr>
+      <td><div class="flex items-center gap-8">${avatarHtml(s.name)}<div><div class="td-name">${s.name}</div><div class="text-sm">${s.institution}</div></div></div></td>
+      <td>${s.course}</td>
+      <td>${s.enrollDate || '—'}</td>
+      <td>${s.institution}</td>
+      <td>${trainer?trainer.name:'—'}</td>
+      <td><span style="font-weight:600;color:var(--text)">${s.percentage}%</span></td>
+      <td><span class="badge ${s.status==='active'?'badge-green':s.status==='completed'?'badge-blue':'badge-red'}">${s.status}</span></td>
+      <td>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm btn-icon" onclick="editStudent('${s.id}')" title="Edit">✏️</button>
+          ${s.status==='completed'?`<button class="btn btn-success btn-sm btn-icon" onclick="downloadCertificate('${s.id}')" title="Download Certificate">📄</button>`:
+          `<button class="btn btn-outline btn-sm btn-icon" onclick="markComplete('${s.id}')" title="Mark Complete">✓</button>`}
+          <button class="btn btn-danger btn-sm btn-icon" onclick="deleteStudent('${s.id}')" title="Delete">🗑️</button>
+        </div>
+      </td>
+    </tr>`;
+  });
+  document.getElementById('stu-table').innerHTML = html || '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text3)">No students found</td></tr>';
+}
+
+function filterStus(q){
+  applyFiltersAndSort();
+}
+
+function initializeFilterOptions(){
+  // Populate filter dropdowns
+  const names = [...new Set(students.map(s=>s.name))].sort();
+  const schools = [...new Set(students.map(s=>s.institution))].sort();
+  const courses = [...new Set(students.map(s=>s.course))].sort();
+  const trainers = [...new Set(students.map(s=>{const t=employees.find(e=>e.id===s.assignedTo);return t?t.name:'Unknown';}))].sort();
+  const datesOfJoining = [...new Set(students.map(s=>s.enrollDate))].filter(d=>d).sort();
+  
+  // Names filter
+  const nameFilter = document.getElementById('filter-name');
+  nameFilter.innerHTML = '<option value="">All Names</option>' + names.map(n=>`<option value="${n}">${n}</option>`).join('');
+  
+  // School filter
+  const schoolFilter = document.getElementById('filter-school');
+  schoolFilter.innerHTML = '<option value="">All Schools</option>' + schools.map(s=>`<option value="${s}">${s}</option>`).join('');
+  
+  // Course filter
+  const courseFilter = document.getElementById('filter-course');
+  courseFilter.innerHTML = '<option value="">All Courses</option>' + courses.map(c=>`<option value="${c}">${c}</option>`).join('');
+  
+  // Trainer filter
+  const trainerFilter = document.getElementById('filter-trainer');
+  trainerFilter.innerHTML = '<option value="">All Trainers</option>' + trainers.map(t=>`<option value="${t}">${t}</option>`).join('');
+  
+  // Date of Joining filter
+  const dojFilter = document.getElementById('filter-doj');
+  dojFilter.innerHTML = '<option value="">All Dates</option>' + datesOfJoining.map(d=>`<option value="${d}">${d}</option>`).join('');
+}
+
+function applyFiltersAndSort(){
+  const searchQuery = document.querySelector('.search-box input')?.value.toLowerCase() || '';
+  const nameFilter = document.getElementById('filter-name')?.value || '';
+  const schoolFilter = document.getElementById('filter-school')?.value || '';
+  const courseFilter = document.getElementById('filter-course')?.value || '';
+  const trainerFilter = document.getElementById('filter-trainer')?.value || '';
+  const statusFilter = document.getElementById('filter-status')?.value || '';
+  const percentageFilter = document.getElementById('filter-percentage')?.value || '';
+  const dojFilter = document.getElementById('filter-doj')?.value || '';
+  const sortBy = document.getElementById('sort-by')?.value || 'name';
+  
+  let filtered = students.filter(s=>{
+    const trainer = employees.find(e=>e.id===s.assignedTo);
+    const trainerName = trainer?trainer.name:'Unknown';
+    
+    // Search query
+    if(searchQuery && !s.name.toLowerCase().includes(searchQuery) && !s.course.toLowerCase().includes(searchQuery) && !s.id.toLowerCase().includes(searchQuery)){
+      return false;
+    }
+    
+    // Name filter
+    if(nameFilter && s.name !== nameFilter) return false;
+    
+    // School filter
+    if(schoolFilter && s.institution !== schoolFilter) return false;
+    
+    // Course filter
+    if(courseFilter && s.course !== courseFilter) return false;
+    
+    // Trainer filter
+    if(trainerFilter && trainerName !== trainerFilter) return false;
+    
+    // Status filter
+    if(statusFilter && s.status !== statusFilter) return false;
+    
+    // Percentage filter
+    if(percentageFilter){
+      const [min,max] = percentageFilter.split('-').map(Number);
+      if(s.percentage < min || s.percentage > max) return false;
+    }
+    
+    // Date of Joining filter
+    if(dojFilter && s.enrollDate !== dojFilter) return false;
+    
+    return true;
+  });
+  
+  // Apply sorting
+  filtered.sort((a,b)=>{
+    switch(sortBy){
+      case 'name':
+        return a.name.localeCompare(b.name);
+      case 'name-desc':
+        return b.name.localeCompare(a.name);
+      case 'doj':
+        return (a.enrollDate || '').localeCompare(b.enrollDate || '');
+      case 'doj-desc':
+        return (b.enrollDate || '').localeCompare(a.enrollDate || '');
+      case 'percentage':
+        return a.percentage - b.percentage;
+      case 'percentage-desc':
+        return b.percentage - a.percentage;
+      default:
+        return 0;
+    }
+  });
+  
+  renderStuTable(filtered);
+}
+
+function resetFilters(){
+  document.querySelector('.search-box input').value = '';
+  document.getElementById('filter-name').value = '';
+  document.getElementById('filter-school').value = '';
+  document.getElementById('filter-course').value = '';
+  document.getElementById('filter-trainer').value = '';
+  document.getElementById('filter-status').value = '';
+  document.getElementById('filter-percentage').value = '';
+  document.getElementById('filter-doj').value = '';
+  document.getElementById('sort-by').value = 'name';
+  applyFiltersAndSort();
+}
+
+function openStuModal(prefill=null){
+  editStuId = null;
+  document.getElementById('stu-modal-title').textContent = 'Add Student';
+  ['name','id','email','phone','institution'].forEach(f=>{const el=document.getElementById('sf-'+f);if(el)el.value='';});
+  document.getElementById('sf-id').value = 'STU' + String(students.length+1).padStart(3,'0');
+  document.getElementById('sf-progress').value = 0;
+  document.getElementById('sf-status').value = 'active';
+  document.getElementById('sf-dob').value = '';
+  document.getElementById('sf-enroll').value = new Date().toISOString().split('T')[0];
+
+  const cs = document.getElementById('sf-course');
+  cs.innerHTML = '<option value="">Select Course</option>'+courses.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
+  const tr = document.getElementById('sf-trainer');
+  tr.innerHTML = '<option value="">Select Trainer</option>'+employees.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');
+
+  openModal('stu-modal');
+}
+
+function editStudent(id){
+  const s = students.find(x=>x.id===id);
+  if(!s) return;
+  editStuId = id;
+  document.getElementById('stu-modal-title').textContent = 'Edit Student — '+s.name;
+  document.getElementById('sf-name').value = s.name;
+  document.getElementById('sf-id').value = s.id;
+  document.getElementById('sf-email').value = s.email;
+  document.getElementById('sf-phone').value = s.phone;
+  document.getElementById('sf-dob').value = s.dob;
+  document.getElementById('sf-institution').value = s.institution;
+  document.getElementById('sf-enroll').value = s.enrollDate;
+  document.getElementById('sf-progress').value = s.progress;
+  document.getElementById('sf-status').value = s.status;
+
+  const cs = document.getElementById('sf-course');
+  cs.innerHTML = '<option value="">Select Course</option>'+courses.map(c=>`<option value="${c.name}" ${c.name===s.course?'selected':''}>${c.name}</option>`).join('');
+  const tr = document.getElementById('sf-trainer');
+  tr.innerHTML = '<option value="">Select Trainer</option>'+employees.map(e=>`<option value="${e.id}" ${e.id===s.assignedTo?'selected':''}>${e.name}</option>`).join('');
+
+  openModal('stu-modal');
+}
+
+async function saveStudent(){
+  const name = document.getElementById('sf-name').value.trim();
+  if(!name){ toast('Name is required',true); return; }
+  const progress = parseInt(document.getElementById('sf-progress').value)||0;
+  const data = {
+    id: document.getElementById('sf-id').value,
+    name,
+    email: document.getElementById('sf-email').value,
+    phone: document.getElementById('sf-phone').value,
+    dob: document.getElementById('sf-dob').value,
+    institution: document.getElementById('sf-institution').value,
+    course: document.getElementById('sf-course').value,
+    assigned_to: document.getElementById('sf-trainer').value,
+    enroll_date: document.getElementById('sf-enroll').value,
+    progress: progress,
+    percentage: progress,
+    status: document.getElementById('sf-status').value,
+  };
+  try {
+    if(editStuId){
+      const updated = await apiPut('/students/'+editStuId, data);
+      const idx = students.findIndex(s=>s.id===editStuId);
+      students[idx] = _normStu(updated);
+    } else {
+      const created = await apiPost('/students', data);
+      students.push(_normStu(created));
+    }
+    closeModal('stu-modal');
+    renderStudents();
+    renderDashboard();
+    initializeFilterOptions();
+    toast('Student saved');
+  } catch(e){ toast(e.message||'Save failed',true); }
+}
+
+async function markComplete(id){
+  if(!confirm('Mark this student as completed?')) return;
+  try {
+    await apiPost('/students/'+id+'/complete', {});
+    const idx = students.findIndex(x=>x.id===id);
+    if(idx>-1){ students[idx].status='completed'; students[idx].completed=true; students[idx].progress=100; }
+    renderStudents();
+    toast('Student marked as completed! Certificate is now available.');
+  } catch(e){ toast(e.message||'Failed',true); }
+}
+
+function renderCompleted(){
+  const comp = students.filter(s=>s.completed||s.status==='completed');
+  let html = '';
+  comp.forEach(s=>{
+    const trainer = employees.find(e=>e.id===s.assignedTo);
+    html += `<div class="card">
+      <div class="flex items-center gap-12" style="margin-bottom:12px">
+        ${avatarHtml(s.name)}
+        <div><div style="font-weight:600;color:var(--text)">${s.name}</div><div class="text-sm">${s.institution}</div></div>
+        <span class="badge badge-blue" style="margin-left:auto">Completed</span>
+      </div>
+      <div><div class="text-sm">Course</div><div style="color:var(--text);font-weight:500;margin-top:2px">${s.course}</div></div>
+      <div style="margin-top:8px"><div class="text-sm">Trainer</div><div style="color:var(--text);font-weight:500;margin-top:2px">${trainer?trainer.name:'—'}</div></div>
+      <div class="divider"></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="showCertificate('${s.id}')">🏆 View & Print Certificate</button>
+    </div>`;
+  });
+  document.getElementById('completed-stu-list').innerHTML = html || '<div style="color:var(--text3);padding:40px;text-align:center">No completed students yet</div>';
+}
+
+function renderCertList(){
+  const comp = students.filter(s=>s.completed||s.status==='completed');
+  let html = '';
+  comp.forEach(s=>{
+    html += `<div class="card" style="text-align:center;padding:24px">
+      <div style="font-size:40px;margin-bottom:8px">🏆</div>
+      <div style="font-family:var(--head);font-size:16px;font-weight:700;color:var(--text)">${s.name}</div>
+      <div class="text-sm" style="margin-top:4px">${s.course}</div>
+      <button class="btn btn-primary btn-sm" style="margin-top:16px" onclick="showCertificate('${s.id}')">View Certificate</button>
+    </div>`;
+  });
+  document.getElementById('cert-list').innerHTML = html || '<div style="color:var(--text3);padding:40px;text-align:center;grid-column:1/-1">No certificates yet</div>';
+}
+
+// ========== CERTIFICATE ==========
+let currentCertStudentId = null;
+
+function showCertificate(stuId){
+  const s = students.find(x=>x.id===stuId);
+  if(!s) return;
+  currentCertStudentId = stuId;
+  const issueDate = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
+  const certNo = 'TSI-'+s.id+'-'+new Date().getFullYear();
+
+  document.getElementById('cert-modal-body').innerHTML = `
+  <div style="padding:8px 0;">
+    <div id="cert-visual" style="
+      width:100%;aspect-ratio:1000/620;
+      background:#0b0c18;
+      border-radius:10px;
+      position:relative;overflow:hidden;
+      font-family:'Segoe UI',Arial,sans-serif;
+      box-sizing:border-box;display:flex;flex-direction:column;
+      align-items:center;justify-content:space-between;
+      padding:5% 7% 4%;
+    ">
+      <!-- bg gradient -->
+      <div style="position:absolute;inset:0;background:linear-gradient(160deg,#0d0e20 0%,#0b0c1a 45%,#10112a 100%);"></div>
+      <!-- top-right purple glow -->
+      <div style="position:absolute;top:-10%;right:-6%;width:28%;padding-top:28%;background:radial-gradient(circle,rgba(80,60,200,0.38) 0%,transparent 68%);border-radius:50%;"></div>
+      <!-- bottom-left orange glow -->
+      <div style="position:absolute;bottom:-8%;left:4%;width:22%;padding-top:18%;background:radial-gradient(ellipse,rgba(180,80,10,0.2) 0%,transparent 70%);border-radius:50%;"></div>
+      <!-- gold border -->
+      <div style="position:absolute;inset:1.8%;border:2px solid rgba(220,140,0,0.7);border-radius:8px;"></div>
+
+      <!-- TOP -->
+      <div style="position:relative;z-index:1;text-align:center;width:100%;">
+        <svg width="22" height="30" viewBox="0 0 28 38" fill="none" style="display:block;margin:0 auto 8px">
+          <img src="https://i.ibb.co/3YrbmDRB/img-removebg-preview.png" style="width:100px;object-fit:contain;margin-top:-70px;" alt="logo"/>
+        </svg>
+        <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
+          <div style="flex:1;height:1.5px;background:linear-gradient(to right,transparent,rgba(220,140,0,0.7));max-width:18%;"></div>
+          <span style="font-size:clamp(8px,1.1vw,13px);font-weight:700;letter-spacing:4px;color:#f59e0b;text-transform:uppercase;white-space:nowrap;">Kinevox Academy INSTITUTE &nbsp;&mdash;&nbsp; Chennai</span>
+          <div style="flex:1;height:1.5px;background:linear-gradient(to left,transparent,rgba(220,140,0,0.7));max-width:18%;"></div>
+        </div>
+      </div>
+
+      <!-- MIDDLE -->
+      <div style="position:relative;z-index:1;text-align:center;display:flex;flex-direction:column;align-items:center;">
+        <div style="font-size:clamp(10px,1.4vw,15px);color:#b0b3d0;margin-bottom:6px;">This is to certify that</div>
+        <div style="font-size:clamp(28px,5.5vw,62px);font-weight:800;font-style:italic;color:#f97316;line-height:1.1;margin-bottom:8px;text-shadow:0 0 40px rgba(249,115,22,0.25);">${s.name}</div>
+        <div style="font-size:clamp(10px,1.4vw,15px);color:#b0b3d0;margin-bottom:6px;">has successfully completed the course</div>
+        <div style="font-size:clamp(14px,2vw,24px);font-weight:700;color:#7c6ff7;">${s.course}</div>
+      </div>
+
+      <!-- META -->
+      <div style="position:relative;z-index:1;width:100%;text-align:center;">
+        <div style="height:1px;background:rgba(255,255,255,0.07);width:60%;margin:0 auto 10px;"></div>
+        <div style="font-size:clamp(8px,1vw,12px);color:#555880;letter-spacing:0.8px;">
+          Certificate No: ${certNo} &nbsp;&nbsp;|&nbsp;&nbsp; Date of Issue: ${issueDate}
+        </div>
+      </div>
+
+      <!-- SIGNATURES -->
+      <div style="position:relative;z-index:1;width:100%;display:flex;align-items:flex-end;justify-content:space-between;">
+        <div style="text-align:left;">
+          <div style="width:90px;height:1.5px;background:#f59e0b;margin-bottom:6px;"></div>
+          <div style="font-size:clamp(8px,0.9vw,11px);color:#7a7d9c;">Director, Kinevox Academy Institute</div>
+        </div>
+        <div style="text-align:center;">
+          <svg width="36" height="32" viewBox="0 0 44 40" fill="none" style="display:block;margin:0 auto 4px">
+            <polygon points="22,4 44,14 22,24 0,14" fill="#7c6ff7"/>
+            <path d="M8 17 L8 29 Q22 36 36 29 L36 17 L22 24 Z" fill="#5a54d4"/>
+            <line x1="44" y1="14" x2="44" y2="26" stroke="#f59e0b" stroke-width="2"/>
+            <circle cx="44" cy="28" r="2.5" fill="#f59e0b"/>
+          </svg>
+          <div style="font-size:clamp(8px,0.9vw,11px);color:#7a7d9c;letter-spacing:1px;">Verified Completion</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="width:90px;height:1.5px;background:#f59e0b;margin-left:auto;margin-bottom:6px;"></div>
+          <div style="font-size:clamp(8px,0.9vw,11px);color:#7a7d9c;">Academic Coordinator</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  openModal('cert-modal');
+}
+
+// ========== COURSES ==========
+function renderCourses(){
+  renderCourseGrid(courses);
+}
+
+function renderCourseGrid(list){
+  let html = '';
+  list.forEach(c=>{
+    const trainer = employees.find(e=>e.id===c.assignedTo);
+    const pct = Math.round((c.enrolled/c.seats)*100);
+    const icon = COURSE_ICONS[c.category]||'📖';
+    html += `<div class="course-card">
+      <div class="course-icon">${icon}</div>
+      <div class="course-name">${c.name}</div>
+      <div class="course-cat">${c.category}</div>
+      <div class="text-sm" style="margin-bottom:12px">${c.description}</div>
+      <div class="flex justify-between" style="margin-bottom:4px">
+        <span class="text-sm">Enrollment</span>
+        <span style="font-size:12px;color:var(--text2)">${c.enrolled}/${c.seats}</span>
+      </div>
+      <div class="progress-bar" style="margin-bottom:12px"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="course-stats">
+        <div class="course-stat"><div class="course-stat-val">₹${(c.fee/1000).toFixed(1)}K</div><div class="course-stat-key">Fee</div></div>
+        <div class="course-stat"><div class="course-stat-val">${c.duration}</div><div class="course-stat-key">Duration</div></div>
+      </div>
+      <div class="divider"></div>
+      <div class="flex items-center gap-8" style="margin-bottom:12px">
+        ${trainer?avatarHtml(trainer.name):'<div class="avatar" style="background:var(--bg3)">?</div>'}
+        <div><div style="font-size:12px;color:var(--text3)">Trainer</div><div style="font-size:13px;color:var(--text2)">${trainer?trainer.name:'Unassigned'}</div></div>
+        <span class="badge ${c.status==='active'?'badge-green':c.status==='upcoming'?'badge-gold':'badge-red'}" style="margin-left:auto">${c.status}</span>
+      </div>
+      <div class="flex gap-8">
+        <button class="btn btn-outline btn-sm" onclick="editCourse('${c.id}')">✏️ Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCourse('${c.id}')">🗑️</button>
+      </div>
+    </div>`;
+  });
+  document.getElementById('course-grid').innerHTML = html || '<div style="color:var(--text3);padding:40px;text-align:center;grid-column:1/-1">No courses found</div>';
+}
+
+function filterCrs(q){
+  const filtered = courses.filter(c=>c.name.toLowerCase().includes(q.toLowerCase())||c.category.toLowerCase().includes(q.toLowerCase()));
+  renderCourseGrid(filtered);
+}
+
+function openCrsModal(){
+  editCrsId = null;
+  document.getElementById('crs-modal-title').textContent = 'Add Course';
+  ['name','dur','fee','seats','desc'].forEach(f=>{const el=document.getElementById('cf-'+f);if(el)el.value='';});
+  document.getElementById('cf-cat').value='Programming';
+  document.getElementById('cf-status').value='active';
+  const tr = document.getElementById('cf-trainer');
+  tr.innerHTML = '<option value="">Select Trainer</option>'+employees.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');
+  openModal('crs-modal');
+}
+
+function editCourse(id){
+  const c = courses.find(x=>x.id===id);
+  if(!c) return;
+  editCrsId = id;
+  document.getElementById('crs-modal-title').textContent = 'Edit Course';
+  document.getElementById('cf-name').value = c.name;
+  document.getElementById('cf-cat').value = c.category;
+  document.getElementById('cf-dur').value = c.duration;
+  document.getElementById('cf-fee').value = c.fee;
+  document.getElementById('cf-seats').value = c.seats;
+  document.getElementById('cf-desc').value = c.description;
+  document.getElementById('cf-status').value = c.status;
+  const tr = document.getElementById('cf-trainer');
+  tr.innerHTML = '<option value="">Select Trainer</option>'+employees.map(e=>`<option value="${e.id}" ${e.id===c.assignedTo?'selected':''}>${e.name}</option>`).join('');
+  openModal('crs-modal');
+}
+
+async function saveCourse(){
+  const name = document.getElementById('cf-name').value.trim();
+  if(!name){ toast('Course name required',true); return; }
+  const data = {
+    name,
+    category: document.getElementById('cf-cat').value,
+    duration: document.getElementById('cf-dur').value,
+    fee: parseInt(document.getElementById('cf-fee').value)||0,
+    seats: parseInt(document.getElementById('cf-seats').value)||0,
+    assigned_to: document.getElementById('cf-trainer').value || null,
+    description: document.getElementById('cf-desc').value,
+    status: document.getElementById('cf-status').value,
+  };
+  try {
+    if(editCrsId){
+      const existing = courses.find(c=>c.id===editCrsId);
+      data.enrolled = existing ? existing.enrolled : 0;
+      const updated = await apiPut('/courses/'+editCrsId, data);
+      const idx = courses.findIndex(c=>c.id===editCrsId);
+      courses[idx] = _normCrs(updated);
+    } else {
+      const created = await apiPost('/courses', data);
+      courses.push(_normCrs(created));
+    }
+    closeModal('crs-modal');
+    renderCourses();
+    renderDashboard();
+    toast('Course saved');
+  } catch(e){ toast(e.message||'Save failed',true); }
+}
+
+async function deleteCourse(id){
+  if(!confirm('Delete this course?')) return;
+  try {
+    await apiDelete('/courses/'+id);
+    courses = courses.filter(c=>c.id!==id);
+    renderCourses();
+    toast('Course deleted');
+  } catch(e){ toast(e.message||'Delete failed',true); }
+}
+
+// ========== PAYROLL ==========
+function renderPayroll(){
+  let salHtml = '';
+  employees.forEach(e=>{
+    salHtml += `<div class="card">
+      <div class="flex items-center gap-12" style="margin-bottom:14px">
+        ${avatarHtml(e.name)}
+        <div><div style="font-weight:600;color:var(--text)">${e.name}</div><div class="text-sm">${e.role}</div></div>
+      </div>
+      <div class="grid-2" style="margin-bottom:12px">
+        <div style="background:var(--bg3);border-radius:8px;padding:10px"><div class="text-sm">Base Salary</div><div style="font-size:18px;font-weight:700;color:var(--text);margin-top:2px">₹${e.salary.toLocaleString()}</div></div>
+        <div style="background:var(--bg3);border-radius:8px;padding:10px"><div class="text-sm">Net Payable</div><div style="font-size:18px;font-weight:700;color:var(--green);margin-top:2px">₹${(e.salary+e.bonus).toLocaleString()}</div></div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="openSlipModal('${e.id}')">💰 Generate Salary Slip</button>
+    </div>`;
+  });
+  document.getElementById('salary-emp-list').innerHTML = salHtml;
+
+  let idHtml = '';
+  employees.forEach(e=>{
+    idHtml += `<div class="card" style="text-align:center">
+      <div style="margin-bottom:-62px">${avatarHtml(e.name,'lg')}</div>
+      <div style="font-weight:600;color:var(--text)">${e.name}</div>
+      <div class="text-sm" style="margin-top:2px">${e.id}</div>
+      <button class="btn btn-outline btn-sm" style="margin-top:12px" onclick="openIdCardModal('${e.id}')">🪪 Generate ID Card</button>
+    </div>`;
+  });
+  document.getElementById('id-card-list').innerHTML = idHtml;
+}
+
+// ========== SALARY SLIP ==========
+function openSlipModal(empId){
+  const e = employees.find(x=>x.id===empId);
+  if(!e) return;
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const now = new Date();
+  const month = months[now.getMonth()]+' '+now.getFullYear();
+  const pf = Math.round(e.salary*0.12);
+  const tax = Math.round(e.salary*0.05);
+  const gross = e.salary+e.bonus;
+  const net = gross - pf - tax;
+
+  document.getElementById('slip-modal-body').innerHTML = `
+  <div class="slip">
+    <div class="slip-header">
+      <div>
+        <div class="slip-inst"><img src="https://i.ibb.co/3YrbmDRB/img-removebg-preview.png" style="width:100px;height:100px;object-fit:contain;display:block;margin:0 auto 10px;" alt="logo"/> Kinevox Academy Institute</div>
+        <div class="slip-address">Chennai, Tamilnadu — India</div>
+      </div>
+      <div>
+        <div class="slip-title">SALARY SLIP</div>
+        <div class="slip-month">${month}</div>
+      </div>
+    </div>
+    <div class="slip-emp-info">
+      <div class="slip-info-item"><div class="slip-info-label">Employee Name</div><div class="slip-info-val">${e.name}</div></div>
+      <div class="slip-info-item"><div class="slip-info-label">Employee ID</div><div class="slip-info-val">${e.id}</div></div>
+      <div class="slip-info-item"><div class="slip-info-label">Designation</div><div class="slip-info-val">${e.role}</div></div>
+      <div class="slip-info-item"><div class="slip-info-label">Department</div><div class="slip-info-val">${e.dept}</div></div>
+      <div class="slip-info-item"><div class="slip-info-label">Date of Joining</div><div class="slip-info-val">${e.doj}</div></div>
+      <div class="slip-info-item"><div class="slip-info-label">Working Days</div><div class="slip-info-val">${e.attendance.present} / 25</div></div>
+    </div>
+    <div class="slip-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Earnings</div>
+          <table class="slip-table" style="width:100%">
+            <thead><tr><th>Component</th><th style="text-align:right">Amount (₹)</th></tr></thead>
+            <tbody>
+              <tr><td>Basic Salary</td><td>₹${e.salary.toLocaleString()}</td></tr>
+              <tr><td>Performance Bonus</td><td>₹${e.bonus.toLocaleString()}</td></tr>
+              <tr><td style="font-weight:600;color:var(--text)">Gross Earnings</td><td style="font-weight:700;color:var(--text)">₹${gross.toLocaleString()}</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Deductions</div>
+          <table class="slip-table" style="width:100%">
+            <thead><tr><th>Component</th><th style="text-align:right">Amount (₹)</th></tr></thead>
+            <tbody>
+              <tr><td>PF (12%)</td><td>₹${pf.toLocaleString()}</td></tr>
+              <tr><td>Tax (5%)</td><td>₹${tax.toLocaleString()}</td></tr>
+              <tr><td style="font-weight:600;color:var(--text)">Total Deductions</td><td style="font-weight:700;color:var(--red)">₹${(pf+tax).toLocaleString()}</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="slip-total">
+        <div class="slip-net-label">Net Payable Amount</div>
+        <div class="slip-net-amt">₹${net.toLocaleString()}</div>
+      </div>
+      <div style="margin-top:16px;font-size:11px;color:var(--text3);text-align:center">This is a computer-generated salary slip and does not require a signature.</div>
+    </div>
+  </div>`;
+
+  openModal('slip-modal');
+}
+
+// ========== DOWNLOAD FUNCTIONS ==========
+function downloadSalaryBill(empId){
+  const e = employees.find(x=>x.id===empId);
+  if(!e) return;
+  
+  const gross = e.salary + e.bonus;
+  const pf = Math.round(gross * 0.12);
+  const tax = Math.round(gross * 0.05);
+  const net = gross - pf - tax;
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const now = new Date();
+  const month = months[now.getMonth()]+' '+now.getFullYear();
+
+  // Create off-screen container with FIXED position so it doesn't affect page layout
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:fixed;left:-9999px;top:0;width:800px;z-index:-999;background:#0e0f1a;';
+  wrap.innerHTML = `
+  <div style="font-family: Arial, sans-serif; width:800px; background: #0e0f1a; color: #e8eaf6; padding: 40px; box-sizing:border-box;">
+    <div style="background: linear-gradient(135deg, #6c63ff, #38bdf8); padding: 24px 30px; border-radius: 10px; margin-bottom: 30px; display:flex; justify-content:space-between; align-items:center;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <img src="https://i.ibb.co/3YrbmDRB/img-removebg-preview.png" style="width:56px;height:56px;object-fit:contain;" alt="logo" crossorigin="anonymous"/>
+        <div>
+          <div style="font-size:20px;font-weight:bold;color:#fff;">Kinevox Academy Institute</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:2px;">Chennai, Tamilnadu — India</div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:16px;font-weight:bold;color:#fff;background:rgba(255,255,255,0.15);padding:6px 16px;border-radius:20px;">SALARY SLIP</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.75);margin-top:6px;">${month}</div>
+      </div>
+    </div>
+    
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;padding:20px;background:#161728;border-radius:8px;">
+      <div><div style="font-size:10px;color:#5c6080;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Employee Name</div><div style="font-size:15px;font-weight:bold;">${e.name}</div></div>
+      <div><div style="font-size:10px;color:#5c6080;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Employee ID</div><div style="font-size:15px;font-weight:bold;">${e.id}</div></div>
+      <div><div style="font-size:10px;color:#5c6080;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Designation</div><div style="font-size:13px;">${e.role}</div></div>
+      <div><div style="font-size:10px;color:#5c6080;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Department</div><div style="font-size:13px;">${e.dept}</div></div>
+      <div><div style="font-size:10px;color:#5c6080;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Date of Joining</div><div style="font-size:13px;">${e.doj}</div></div>
+      <div><div style="font-size:10px;color:#5c6080;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Working Days</div><div style="font-size:13px;">${e.attendance.present} / 25</div></div>
+    </div>
+    
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-bottom:28px;">
+      <div>
+        <div style="font-size:11px;font-weight:bold;color:#6c63ff;text-transform:uppercase;margin-bottom:12px;letter-spacing:1px;">Earnings</div>
+        <table style="width:100%;border-collapse:collapse;">
+          <thead><tr style="border-bottom:1px solid #2a2c45;">
+            <th style="text-align:left;padding:8px 0;font-size:10px;color:#5c6080;text-transform:uppercase;">Component</th>
+            <th style="text-align:right;padding:8px 0;font-size:10px;color:#5c6080;text-transform:uppercase;">Amount (₹)</th>
+          </tr></thead>
+          <tbody>
+            <tr style="border-bottom:1px solid #1e2035;"><td style="padding:10px 0;color:#9fa3c7;">Basic Salary</td><td style="text-align:right;padding:10px 0;color:#9fa3c7;">₹${e.salary.toLocaleString()}</td></tr>
+            <tr style="border-bottom:1px solid #1e2035;"><td style="padding:10px 0;color:#9fa3c7;">Performance Bonus</td><td style="text-align:right;padding:10px 0;color:#9fa3c7;">₹${e.bonus.toLocaleString()}</td></tr>
+            <tr><td style="padding:10px 0;font-weight:bold;color:#e8eaf6;">Gross Earnings</td><td style="text-align:right;padding:10px 0;font-weight:bold;color:#e8eaf6;">₹${gross.toLocaleString()}</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:bold;color:#6c63ff;text-transform:uppercase;margin-bottom:12px;letter-spacing:1px;">Deductions</div>
+        <table style="width:100%;border-collapse:collapse;">
+          <thead><tr style="border-bottom:1px solid #2a2c45;">
+            <th style="text-align:left;padding:8px 0;font-size:10px;color:#5c6080;text-transform:uppercase;">Component</th>
+            <th style="text-align:right;padding:8px 0;font-size:10px;color:#5c6080;text-transform:uppercase;">Amount (₹)</th>
+          </tr></thead>
+          <tbody>
+            <tr style="border-bottom:1px solid #1e2035;"><td style="padding:10px 0;color:#9fa3c7;">PF (12%)</td><td style="text-align:right;padding:10px 0;color:#9fa3c7;">₹${pf.toLocaleString()}</td></tr>
+            <tr style="border-bottom:1px solid #1e2035;"><td style="padding:10px 0;color:#9fa3c7;">Tax (5%)</td><td style="text-align:right;padding:10px 0;color:#9fa3c7;">₹${tax.toLocaleString()}</td></tr>
+            <tr><td style="padding:10px 0;font-weight:bold;color:#ef4444;">Total Deductions</td><td style="text-align:right;padding:10px 0;font-weight:bold;color:#ef4444;">₹${(pf+tax).toLocaleString()}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <div style="background:linear-gradient(135deg,#1e2035,#161728);padding:22px 24px;border-radius:8px;margin-bottom:24px;border:1px solid #2a2c45;display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:13px;color:#9fa3c7;font-weight:600;">Net Payable Amount</div>
+      <div style="font-size:32px;font-weight:bold;color:#10b981;">₹${net.toLocaleString()}</div>
+    </div>
+    
+    <div style="text-align:center;font-size:10px;color:#5c6080;padding-top:16px;border-top:1px solid #2a2c45;">
+      This is a computer-generated salary slip and does not require a signature.
+    </div>
+  </div>`;
+
+  document.body.appendChild(wrap);
+
+  html2canvas(wrap.firstElementChild, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: '#0e0f1a',
+    logging: false,
+    x: 0, y: 0,
+    scrollX: 0, scrollY: 0,
+    windowWidth: 800
+  }).then(canvas => {
+    document.body.removeChild(wrap);
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+    const imgData = canvas.toDataURL('image/jpeg', 0.98);
+    // Scale image to fit page width, crop or paginate height
+    const ratio = canvas.width / canvas.height;
+    const imgW = pageW;
+    const imgH = imgW / ratio;
+    if(imgH <= pageH){
+      pdf.addImage(imgData, 'JPEG', 0, 0, imgW, imgH);
+    } else {
+      // Multi-page: slice canvas
+      const pageCanvas = document.createElement('canvas');
+      const ctx = pageCanvas.getContext('2d');
+      const pageHeightPx = Math.floor(canvas.width * pageH / pageW);
+      let yOffset = 0;
+      while(yOffset < canvas.height){
+        const sliceH = Math.min(pageHeightPx, canvas.height - yOffset);
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = sliceH;
+        ctx.drawImage(canvas, 0, yOffset, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+        const sliceData = pageCanvas.toDataURL('image/jpeg', 0.98);
+        const sliceImgH = (sliceH / canvas.width) * pageW;
+        if(yOffset > 0) pdf.addPage();
+        pdf.addImage(sliceData, 'JPEG', 0, 0, pageW, sliceImgH);
+        yOffset += sliceH;
+      }
+    }
+    pdf.save(`Salary_Bill_${e.id}.pdf`);
+    toast('Salary bill PDF downloaded');
+  }).catch(err => {
+    document.body.removeChild(wrap);
+    console.error(err);
+    toast('Download failed — please try again');
+  });
+}
+
+function downloadIdCard(empId){
+  const e = employees.find(x=>x.id===empId);
+  if(!e) return;
+  
+  // Generate QR code off-screen first
+  const qrElement = document.createElement('div');
+  qrElement.style.cssText = 'position:fixed;left:-9999px;top:0;';
+  document.body.appendChild(qrElement);
+  
+  new QRCode(qrElement, {
+    text: `TSI-EMP|${e.id}|${e.name}|${e.role}|${e.dept}`,
+    width: 200, height: 200,
+    colorDark: '#6c63ff', colorLight: '#1e2035'
+  });
+  
+  setTimeout(() => {
+    const qrCanvas = qrElement.querySelector('canvas');
+    const qrImage = qrCanvas?.toDataURL('image/png') || '';
+    document.body.removeChild(qrElement);
+
+    // Card container — fixed position, exact width, no scroll influence
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'position:fixed;left:-9999px;top:0;width:320px;z-index:-999;';
+    wrap.innerHTML = `
+    <div style="font-family: Arial, sans-serif; width:320px; background: linear-gradient(135deg, #161728, #0e0f1a); border: 2px solid #6c63ff; border-radius: 16px; overflow: hidden; box-sizing:border-box;">
+      <div style="background: linear-gradient(135deg, #6c63ff, #38bdf8); padding: 20px; text-align: center; position:relative;">
+        <img src="https://i.ibb.co/3YrbmDRB/img-removebg-preview.png" style="width:52px;height:52px;object-fit:contain;display:block;margin:0 auto 8px;" alt="logo" crossorigin="anonymous"/>
+        <div style="font-size:15px;font-weight:bold;color:#fff;letter-spacing:0.5px;">Kinevox Academy Institute</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.75);margin-top:4px;">Chennai, Tamilnadu</div>
+      </div>
+      
+      <div style="padding: 24px 20px 20px; text-align: center; color: #e8eaf6;">
+        <div style="width:72px;height:72px;margin:0 auto 14px;background:linear-gradient(135deg,#6c63ff,#38bdf8);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:bold;color:#fff;line-height:72px;text-align:center;">
+          ${initials(e.name)}
+        </div>
+        <div style="font-size:17px;font-weight:bold;margin-bottom:4px;">${e.name}</div>
+        <div style="font-size:12px;color:#a78bfa;margin-bottom:16px;">${e.role}</div>
+        
+        <div style="background:#1e2035;padding:14px;border-radius:8px;margin-bottom:16px;text-align:left;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #2a2c45;">
+            <span style="font-size:10px;color:#5c6080;text-transform:uppercase;">ID</span>
+            <span style="font-size:12px;font-weight:bold;">${e.id}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #2a2c45;">
+            <span style="font-size:10px;color:#5c6080;text-transform:uppercase;">Dept</span>
+            <span style="font-size:12px;font-weight:bold;">${e.dept}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #2a2c45;">
+            <span style="font-size:10px;color:#5c6080;text-transform:uppercase;">Phone</span>
+            <span style="font-size:12px;font-weight:bold;">${e.phone}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="font-size:10px;color:#5c6080;text-transform:uppercase;">Joined</span>
+            <span style="font-size:12px;font-weight:bold;">${e.doj}</span>
+          </div>
+        </div>
+        
+        ${qrImage ? `<div style="margin:12px 0;"><img src="${qrImage}" style="width:100px;height:100px;display:block;margin:0 auto;" alt="QR"/></div>` : ''}
+        <div style="font-size:10px;color:#5c6080;">Scan to verify</div>
+      </div>
+    </div>`;
+
+    document.body.appendChild(wrap);
+
+    html2canvas(wrap.firstElementChild, {
+      scale: 3,
+      useCORS: true,
+      backgroundColor: '#0e0f1a',
+      logging: false,
+      x: 0, y: 0,
+      scrollX: 0, scrollY: 0,
+      windowWidth: 320
+    }).then(canvas => {
+      document.body.removeChild(wrap);
+      const { jsPDF } = window.jspdf;
+      // ID card PDF: use card's own dimensions (credit-card style page)
+      const pxW = canvas.width;
+      const pxH = canvas.height;
+      const mmW = 86;  // standard ID card width in mm
+      const mmH = mmW * (pxH / pxW);
+      const pdf = new jsPDF({ orientation: mmH > mmW ? 'portrait' : 'landscape', unit: 'mm', format: [mmW, mmH] });
+      const imgData = canvas.toDataURL('image/jpeg', 0.98);
+      pdf.addImage(imgData, 'JPEG', 0, 0, mmW, mmH);
+      pdf.save(`ID_Card_${e.id}.pdf`);
+      toast('ID card PDF downloaded');
+    }).catch(err => {
+      document.body.removeChild(wrap);
+      console.error(err);
+      toast('Download failed — please try again');
+    });
+  }, 300);
+}
+
+function downloadCertificate(studentId){
+  const sid = studentId || currentCertStudentId;
+  const s = students.find(x=>x.id===sid);
+  if(!s){ toast('No student selected'); return; }
+
+  const issueDate = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
+  const certNo = 'TSI-'+s.id+'-'+new Date().getFullYear();
+
+  const btn = document.getElementById('cert-download-btn');
+  if(btn){ btn.disabled=true; btn.textContent='Generating PDF…'; }
+
+  // Off-screen fixed-size element for html2pdf
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:fixed;left:-9999px;top:0;width:1000px;height:620px;z-index:-999;';
+  wrap.innerHTML = `
+<div style="width:1000px;height:620px;background:#0b0c18;position:relative;overflow:hidden;font-family:'Segoe UI',Arial,sans-serif;box-sizing:border-box;">
+  <div style="position:absolute;inset:0;background:linear-gradient(160deg,#0d0e20 0%,#0b0c1a 45%,#10112a 100%);"></div>
+  <div style="position:absolute;top:-80px;right:-60px;width:280px;height:280px;background:radial-gradient(circle,rgba(80,60,200,0.38) 0%,transparent 68%);border-radius:50%;"></div>
+  <div style="position:absolute;bottom:-60px;left:40px;width:200px;height:160px;background:radial-gradient(ellipse,rgba(180,80,10,0.20) 0%,transparent 70%);border-radius:50%;"></div>
+  <div style="position:absolute;inset:14px;border:2px solid rgba(220,140,0,0.72);border-radius:10px;pointer-events:none;"></div>
+  <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:46px 80px 38px;box-sizing:border-box;">
+    <div style="text-align:center;width:100%;">
+      <img src="https://i.ibb.co/3YrbmDRB/img-removebg-preview.png" style="width:100px;height:100px;object-fit:contain;display:block;margin:0 auto 10px;" alt="logo"/>
+      <div style="display:flex;align-items:center;justify-content:center;gap:20px;">
+        <div style="width:150px;height:1.5px;background:linear-gradient(to right,transparent,rgba(220,140,0,0.75));"></div>
+        <span style="font-size:12px;font-weight:700;letter-spacing:5px;color:#f59e0b;text-transform:uppercase;white-space:nowrap;">Kinevox Academy INSTITUTE &#8212; Chennai</span>
+        <div style="width:150px;height:1.5px;background:linear-gradient(to left,transparent,rgba(220,140,0,0.75));"></div>
+      </div>
+    </div>
+    <div style="text-align:center;display:flex;flex-direction:column;align-items:center;">
+      <div style="font-size:15px;color:#b0b3d0;margin-bottom:14px;">This is to certify that</div>
+      <div style="font-size:64px;font-weight:800;font-style:italic;color:#f97316;line-height:1;margin-bottom:16px;">${s.name}</div>
+      <div style="font-size:15px;color:#b0b3d0;margin-bottom:10px;">has successfully completed the course</div>
+      <div style="font-size:26px;font-weight:700;color:#7c6ff7;">${s.course}</div>
+    </div>
+    <div style="width:100%;text-align:center;">
+      <div style="height:1px;background:rgba(255,255,255,0.07);width:60%;margin:0 auto 14px;"></div>
+      <div style="font-size:12px;color:#555880;letter-spacing:0.8px;">Certificate No: ${certNo} &nbsp;&nbsp;|&nbsp;&nbsp; Date of Issue: ${issueDate}</div>
+    </div>
+    <div style="width:100%;display:flex;align-items:flex-end;justify-content:space-between;">
+      <div style="text-align:left;">
+        <div style="width:110px;height:1.5px;background:#f59e0b;margin-bottom:7px;"></div>
+        <div style="font-size:11px;color:#7a7d9c;">Director, Kinevox Academy Institute</div>
+      </div>
+      <div style="text-align:center;">
+        <svg width="44" height="38" viewBox="0 0 44 40" fill="none" style="display:block;margin:0 auto 5px;">
+          <polygon points="22,4 44,14 22,24 0,14" fill="#7c6ff7"/>
+          <path d="M8 17 L8 29 Q22 36 36 29 L36 17 L22 24 Z" fill="#5a54d4"/>
+          <line x1="44" y1="14" x2="44" y2="26" stroke="#f59e0b" stroke-width="2.5"/>
+          <circle cx="44" cy="28" r="3" fill="#f59e0b"/>
+        </svg>
+        <div style="font-size:11px;color:#7a7d9c;letter-spacing:1px;">Verified Completion</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="width:110px;height:1.5px;background:#f59e0b;margin-left:auto;margin-bottom:7px;"></div>
+        <div style="font-size:11px;color:#7a7d9c;">Academic Coordinator</div>
+      </div>
+    </div>
+  </div>
+</div>`;
+
+  document.body.appendChild(wrap);
+
+  html2canvas(wrap.firstElementChild, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: '#0b0c18',
+    logging: false,
+    x: 0, y: 0,
+    scrollX: 0, scrollY: 0,
+    windowWidth: 1000
+  }).then(canvas => {
+    document.body.removeChild(wrap);
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [1000, 620] });
+    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+    pdf.addImage(imgData, 'JPEG', 0, 0, 1000, 620);
+    pdf.save('Certificate_'+s.name.replace(/\s+/g,'_')+'_'+s.id+'.pdf');
+    if(btn){ btn.disabled=false; btn.innerHTML='&#11015;&#65039; Download Certificate PDF'; }
+    toast('Certificate PDF downloaded');
+  }).catch(err=>{
+    document.body.removeChild(wrap);
+    if(btn){ btn.disabled=false; btn.innerHTML='&#11015;&#65039; Download Certificate PDF'; }
+    toast('Download failed — please try again');
+    console.error(err);
+  });
+
+}
+
+// ========== ID CARD + QR ==========
+function openIdCardModal(empId){
+  const e = employees.find(x=>x.id===empId);
+  if(!e) return;
+
+  document.getElementById('idcard-modal-body').innerHTML = `
+  <div class="id-card">
+    <div class="id-card-top">
+      <div class="id-inst" style="display:flex;align-items:center;justify-content:center;margin-bottom:-30px;margin-top:-20px;"><img src="https://i.ibb.co/3YrbmDRB/img-removebg-preview.png" style="width:120px;height:120px;object-fit:contain;" alt="logo"/><span style="margin-right:100px;">Kinevox Academy Institute</span></div>
+      <div class="id-sub" style="margin-left:20px;">Chennai,Tamilnadu</div>
+    </div>
+    <div class="id-body">
+      <div class="id-avatar" id="id-avatar-${e.id}">${initials(e.name)}</div>
+      <div class="id-name">${e.name}</div>
+      <div class="id-role">${e.role}</div>
+      <div class="id-fields">
+        <div class="id-field"><span class="id-field-key">ID</span><span class="id-field-val">${e.id}</span></div>
+        <div class="id-field"><span class="id-field-key">Dept</span><span class="id-field-val">${e.dept}</span></div>
+        <div class="id-field"><span class="id-field-key">Phone</span><span class="id-field-val">${e.phone}</span></div>
+        <div class="id-field"><span class="id-field-key">Joined</span><span class="id-field-val">${e.doj}</span></div>
+      </div>
+      <div class="id-qr" id="qr-container-${e.id}"></div>
+      <div style="font-size:10px;color:var(--text3);margin-top:4px">Scan to verify</div>
+    </div>
+  </div>`;
+
+  openModal('idcard-modal');
+
+  setTimeout(()=>{
+    const qrEl = document.getElementById('qr-container-'+e.id);
+    if(qrEl && typeof QRCode !== 'undefined'){
+      new QRCode(qrEl, {
+        text: `TSI-EMP|${e.id}|${e.name}|${e.role}|${e.dept}`,
+        width: 80, height: 80,
+        colorDark: '#6c63ff', colorLight: '#1e2035'
+      });
+    }
+  }, 200);
+}
+
+// ========== REPORTS ==========
+function renderReports(){
+  // Revenue chart
+  let revHtml = '';
+  courses.forEach(c=>{
+    const rev = c.fee*c.enrolled;
+    const maxRev = Math.max(...courses.map(x=>x.fee*x.enrolled));
+    const h = Math.round((rev/maxRev)*120);
+    revHtml += `<div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1">
+      <div style="font-size:11px;color:var(--text2);font-weight:600">₹${(rev/1000).toFixed(0)}K</div>
+      <div style="height:${h}px;width:100%;background:linear-gradient(0deg,var(--accent),var(--accent2));border-radius:4px 4px 0 0"></div>
+      <div style="font-size:10px;color:var(--text3);text-align:center;max-width:60px;overflow:hidden;text-overflow:ellipsis">${c.name.split(' ')[0]}</div>
+    </div>`;
+  });
+  document.getElementById('rev-chart').innerHTML = `<div style="display:flex;align-items:flex-end;gap:8px;height:160px;padding:0 8px">${revHtml}</div>`;
+
+  // Student distribution
+  const byDept = {};
+  students.forEach(s=>{
+    const c = courses.find(x=>x.name===s.course);
+    const cat = c?c.category:'Other';
+    byDept[cat] = (byDept[cat]||0)+1;
+  });
+  const colors = ['var(--accent)','var(--accent3)','var(--green)','var(--gold)'];
+  let distHtml = '';
+  Object.entries(byDept).forEach(([dept,count],i)=>{
+    const pct = Math.round((count/students.length)*100);
+    distHtml += `<div style="margin-bottom:12px">
+      <div class="flex justify-between" style="margin-bottom:4px">
+        <span style="font-size:13px;color:var(--text2)">${dept}</span>
+        <span style="font-size:12px;color:var(--text3)">${count} students (${pct}%)</span>
+      </div>
+      <div class="progress-bar"><div style="height:100%;width:${pct}%;background:${colors[i%colors.length]};border-radius:3px"></div></div>
+    </div>`;
+  });
+  document.getElementById('stu-dist').innerHTML = distHtml;
+
+  // Summary
+  const totalRev = courses.reduce((a,c)=>a+c.fee*c.enrolled,0);
+  const totalSalary = employees.reduce((a,e)=>a+e.salary+e.bonus,0);
+  document.getElementById('inst-summary').innerHTML = `
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-top:12px">
+    ${[['Total Employees',employees.length,'👥'],['Total Students',students.length,'🎓'],['Active Courses',courses.filter(c=>c.status==='active').length,'📚'],['Completed Students',students.filter(s=>s.completed).length,'✅'],['Monthly Revenue','₹'+totalRev.toLocaleString(),'💰'],['Monthly Payroll','₹'+totalSalary.toLocaleString(),'💳']].map(([l,v,i])=>`
+    <div style="background:var(--bg3);border-radius:var(--r);padding:16px;text-align:center">
+      <div style="font-size:24px;margin-bottom:6px">${i}</div>
+      <div style="font-family:var(--head);font-size:20px;font-weight:700;color:var(--text)">${v}</div>
+      <div class="text-sm" style="margin-top:2px">${l}</div>
+    </div>`).join('')}
+  </div>`;
+}
+
+// ========== INIT ==========
+document.addEventListener('DOMContentLoaded', ()=>{
+  const userInput = document.getElementById('login-user');
+  if(userInput) userInput.focus();
+  // Auto-restore session
+  if(_authToken){
+    fetch('/api/auth/me', {headers:_headers()}).then(r=>{
+      if(r.ok){
+        const screen = document.getElementById('login-screen');
+        const app = document.getElementById('app-root');
+        if(screen) screen.style.display = 'none';
+        if(app){ app.style.display='flex'; app.style.width='100%'; }
+        initApp();
+      } else {
+        _authToken = '';
+        sessionStorage.removeItem('kv_token');
+      }
+    }).catch(()=>{});
+  }
+});
+
+async function initApp(){
+  await loadAll();
+  renderDashboard();
+  initializeFilterOptions();
+  document.getElementById('sf-enroll').value = new Date().toISOString().split('T')[0];
+}
+
+// ========== LOGIN ==========
+async function doLogin(){
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value;
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('login-error');
+
+  err.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = '⏳ Signing in…';
+
+  try {
+    const r = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({username:u, password:p})
+    });
+    const j = await r.json();
+
+    if(r.ok && j.success){
+      _authToken = j.data.token;
+      sessionStorage.setItem('kv_token', _authToken);
+      btn.textContent = '✓ Signing in…';
+      setTimeout(async ()=>{
+        const screen = document.getElementById('login-screen');
+        const app = document.getElementById('app-root');
+        screen.classList.add('hide');
+        app.style.display = 'flex';
+        app.style.width = '100%';
+        setTimeout(()=>{ screen.style.display='none'; }, 400);
+        await initApp();
+      }, 400);
+    } else {
+      throw new Error(j.error || 'Login failed');
+    }
+  } catch(e) {
+    err.textContent = '⚠ ' + (e.message || 'Incorrect username or password. Try again.');
+    err.style.display = 'block';
+    err.style.animation = 'none';
+    void err.offsetWidth;
+    err.style.animation = 'shake .3s ease';
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-pass').focus();
+    btn.disabled = false;
+    btn.textContent = 'Sign In →';
+  }
+}
+
+function togglePw(){
+  const inp = document.getElementById('login-pass');
+  const btn = document.getElementById('pw-toggle-btn');
+  if(inp.type === 'password'){
+    inp.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    inp.type = 'password';
+    btn.textContent = '👁';
+  }
+}
+</script>
+
+</div><!-- /#app-root -->
+</body>
+</html>
