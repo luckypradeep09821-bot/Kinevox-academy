@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.env
+kinevox.db
+kinevox.db-*
+uploads/*
+!uploads/.gitkeep
